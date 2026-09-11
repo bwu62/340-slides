@@ -1,0 +1,6 @@
+install.packages("https://cran.r-project.org/src/contrib/Archive/matrixcalc/matrixcalc_1.0-5.tar.gz",type="source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/miscTools/miscTools_0.6-28.tar.gz",type="source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/zoo/zoo_1.8-14.tar.gz",type="source")
+install.packages("https://cran.rstudio.com/contrib/main/Archive/sandwich/sandwich_3.1-0.tar.gz",type="source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/maxLik/maxLik_1.5-2.1.tar.gz",type="source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/lmvar/lmvar_1.5.2.tar.gz",type="source")

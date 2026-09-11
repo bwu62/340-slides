@@ -1,0 +1,631 @@
+---
+title: |
+  | STAT340 - Topic 4:
+  | Estimation
+format:
+  revealjs:
+    title: "STAT340 - Topic 4: Estimation"
+    theme: simple
+    smaller: true
+    transition: slide
+    transition-speed: fast
+    hide-inactive-cursor: true
+    hide-cursor-time: 500
+    width: 1100
+    height: 750
+    maxScale: 1.2
+    pdfSeparateFragments: true
+    menu: false
+    highlight-style: tango
+    monofont: "JetBrains Mono NL"
+    code-line-numbers: false
+    html-math-method: # improves pdf export + makes additional packages work (e.g. cancel)
+      method: mathjax
+      url: https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.js
+    chalkboard:
+      theme: whiteboard
+      chalk-width: 10
+      buttons: false
+      transition: 400
+    include-in-header:
+      text: |
+        <style>
+        .reveal p, .reveal .slides section, .reveal .slides section>section {line-height: 1.2!important;}
+        h1{font-size:2em!important;}
+        section.slide h2{font-size:1.8em!important;margin:0 0 30px!important;}
+        .reveal a{text-decoration:underline;}
+        a.footnote-ref{text-decoration: none;}
+        img{max-width:none!important;}
+        .reveal .columns>.column:last-child>:not(ul,ol){margin-left:0;}
+        .reveal .columns>.column:first-child>:not(ul,ol){margin-right:0;}
+        ul,ol,.quarto-figure{margin-bottom:.2em;}
+        .reveal img{margin:0px;}
+        .reveal small{vertical-align:unset;}
+        .reveal small sup{vertical-align:super;}
+        /*.reveal div.callout{margin:.5em 10% .5em;margin-bottom:1.2em;}
+        div.callout-icon-container{display:none;}
+        div.callout-content{padding: 0 1em .5em;}
+        div.callout p{font-size:larger;}*/
+        div.formula{margin-top:.8em;margin-bottom:.8em;border:2px solid blue;}
+        div.formula p{margin:.8em;}
+        div.formula p:has(div.MathJax_Display){margin:.5em;}
+        div.formula div.MathJax_Display{margin:0em;}
+        /*span.math span{font-size:100% !important;}*/
+        ul li p:has(+ul),ul li p:has(+ol),ol li p:has(+ul),ol li p:has(+ol) {margin-bottom: 6px !important;}
+        ul li ul > li,ul li ol > li,ol li ul > li,ol li ol > li {margin-top: 6px !important;}
+        span.box{padding:.2em;margin-top:.4em!important;margin-bottom:.4em!important;border:2px solid blue;}
+        ::selection{background-color:yellow!important;color:unset!important;}
+        .reveal .fragment.semi-fade-out.visible, .reveal .fragment.fade-in-then-semi-out.visible{opacity:.6;}
+        .reveal .fragment.fade-in-then-semi-out.visible.current-fragment{opacity:1!important;}
+        p+p{margin-top:15px!important;}
+        .spacier ol li{margin-top:25px!important;}
+        div.columns > div.column > p:has(>span.math.display){margin-top:0px!important;}
+        div.columns > div.column > p > span.math.display > mjx-container[display]{margin:0!important;padding:0!important;}
+        /*mjx-container{font-size:110%!important;}*/
+        mjx-container[display]{margin:.3em!important;}
+        /*ol>li{margin-top:6px!important;}*/
+        pre{font-size:large!important;}
+        code{overflow-x:hidden!important;}
+        .cell-output-display{overflow-x:unset!important;}
+        </style>
+        <script>
+        MathJax = {
+          options: {
+            menuOptions: {
+              settings: {
+                enrich: false,
+                collapsible: false,
+                speech: false,
+                braille: false,
+                assistiveMml: false
+              }
+            }
+          },
+          tex: {
+            macros: {
+              pr  : "\\operatorname{Pr}",
+              p   : ["\\pr[#1]",1],
+              e   : ["\\operatorname{E}[#1]",1],
+              v   : ["\\operatorname{Var}[#1]",1],
+              E   : ["\\operatorname{E}\\left[#1\\right]",1],
+              V   : ["\\operatorname{Var}\\left[#1\\right]",1],
+              iid : "\\overset{\\text{iid}}{\\sim}",
+              norm: ["\\operatorname{Normal}(#1)",1],
+              binom: ["\\operatorname{Binomial}(#1)",1],
+              unif: ["\\operatorname{Uniform}(#1)",1],
+              bern: ["\\operatorname{Bernoulli}(#1)",1],
+              exp : ["\\operatorname{Exp}(#1)",1],
+              cov : ["\\operatorname{Cov}(#1)",1],
+              i   : ["\\mathbf{1}_{#1}",1],
+              bias: ["\\operatorname{Bias}(#1)",1],
+              nto : "\\xrightarrow[]{~n~}"
+            }
+          }
+        };
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const links = document.querySelectorAll('a');
+            links.forEach(link => {
+                link.setAttribute('target', '_blank');
+                // Optional: add rel="noopener noreferrer" for security best practices
+                if (!link.getAttribute('rel')) {
+                    link.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+        });
+        </script>
+---
+
+```{r setup,include=F}
+knitr::opts_chunk$set(echo=T,
+                      # cache=T,autodep=T,
+                      fig.align='center',dev='svg')
+knitr::opts_knit$set(global.par = TRUE)
+library(tidyverse)
+source("https://bwu62.github.io/stat240-revamp/ggplot_theme_options.R")
+options(width=100)
+set.seed(1)
+```
+
+
+## Estimation
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+- Suppose you want to apply a RV model, there are usually **parameters** you need to estimate to **fit** the model to the data
+
+  - E.g. estimating $p$ for a binomial, or $\mu$ for a normal, etc.
+
+- Estimates are produced using **estimator** functions, i.e. **statistics** of your sample that ideally should converge to the target parameter
+
+  - Law of large numbers useful here
+  
+  - Method of moments can also be used
+
+- Remember **estimators are RVs** themselves, since they're a function of data, thus also random, with a distribution, expectation, variance, etc..  
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:.5em"}
+Generally 2 common types of estimates:
+
+- **Point estimates** are single number estimates of the parameter, i.e. a single "best guess" based on available data
+
+- **Interval estimates**, confidence intervals, are ranges that try to "capture" the true value a certain amount of the time
+:::
+
+
+## Previous coin example cont.
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Continuing from coin flip example from testing chapter, suppose we wish to estimate chance of heads $p$ for a given coin. Experiment:
+
+- Flip it $n$ times and let $X$ be total number of heads,
+
+- We know $X\sim\binom{n,p}$ for known $n$ but unknown $p$.
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:.5em"}
+- Define the **estimator** $~\hat p=X/n~$ (which is well-defined), note:
+
+$$
+\begin{alignat}{4}
+\e{\hat p}&=~~\,\E{\frac Xn}&&=~\frac{\e{X}}n&&=~~~\frac{np}n&&=~~p\\[6pt]
+\v{\hat p}&=\V{\frac Xn}&&=\frac{\v{X}}{n^2}&&=\frac{np(1\!-\!p)}{n^2}&&=\frac{p(1\!-\!p)}n
+\end{alignat}
+$$
+:::
+
+:::{.fragment}
+- Since $\e{\hat p}\!=\!p$, we say the estimator $\hat p$ is **unbiased**
+
+- Also $\v{\hat p}\!=\!\frac{p(1-p)}n\!\to\!0$ as $n\!\to\!\infty$, so larger sample means more precision
+:::
+
+
+## Bias of estimator
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Let $\hat\theta$ be an estimator for the parameter $\theta$, then its **bias** is defined as:
+$$
+\bias{\hat\theta,\theta}=\e{\hat\theta}-\theta
+$$
+I.e. it's the systematic difference between what the estimator produces and the true value
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:1em"}
+Since $\e{\hat p}\!-\!p=0$, $\hat p$ is unbiased. Let $p=0.5$. We can find the distribution of $\hat p$ for different $n$ values, with either theory or MC:
+
+```{r,echo=T,eval=T,results='hide'}
+# theoretical pmf table of p-hat with p=0.5 for some n
+p.hat.theory = \(n,p=0.5) data.frame(p.hat=0:n/n,prob=dbinom(0:n,n,p))
+
+# MC-simulated distribution of p-hat with p=0.5 for some n
+p.hat.mc = \(n,p=0.5,M=1e5) rbinom(M,n,p)/n
+```
+
+Let's plot both of these for several values of $n$, noting the unbiasedness of the estimator for each value of $n$, as well as how the variance scales with $n$
+:::
+
+
+## $\hat p$ distribution for $n=50$  {transition="slide-in fade-out"}
+
+```{r}
+N=50 ; ggplot(p.hat.theory(N)) + geom_col(aes(p.hat,prob),color="black",fill="white") + 
+  geom_density(data=tibble(X=p.hat.mc(N)),aes(x=X,y=..density../N),adjust=2.5,color="red",size=1)    + scale_x_continuous(limits=c(.25,.75),breaks=seq(.25,.75,.05))
+```
+
+
+## $\hat p$ distribution for $n=200$ {transition="fade-in fade-out"}
+
+```{r}
+N=200 ; ggplot(p.hat.theory(N)) + geom_col(aes(p.hat,prob),color="black",fill="white") + 
+  geom_density(data=tibble(X=p.hat.mc(N)),aes(x=X,y=..density../N),adjust=2,color="red",size=1)      + scale_x_continuous(limits=c(.25,.75),breaks=seq(.25,.75,.05))
+```
+
+
+## $\hat p$ distribution for $n=800$ {transition="fade-in fade-out"}
+
+```{r}
+N=800 ; ggplot(p.hat.theory(N)) + geom_linerange(aes(p.hat,ymin=0,ymax=prob),color="grey50") + 
+  geom_density(data=tibble(X=p.hat.mc(N)),aes(x=X,y=..density../N),adjust=1.5,color="red",size=1)    + scale_x_continuous(limits=c(.25,.75),breaks=seq(.25,.75,.05))
+```
+
+
+## $\hat p$ distribution for $n=3200$ {transition="fade-in slide-out"}
+
+```{r}
+N=3200 ; ggplot(p.hat.theory(N)) + geom_linerange(aes(p.hat,ymin=0,ymax=prob),color="grey50") + 
+  geom_density(data=tibble(X=p.hat.mc(N)),aes(x=X,y=..density../N),adjust=1.5,color="red",size=1)    + scale_x_continuous(limits=c(.25,.75),breaks=seq(.25,.75,.05)) + scale_y_continuous(breaks=c(0,.005,.01),labels=c(".000",".005",".010"))
+```
+
+
+## Exercise
+
+Suppose you conducted a simple random sample of 150 people to survey if they prefer candidate A or candidate B for an upcoming local election where voting is mandatory and there's no 3rd option. Out of the 150 people surveyed, 90 preferred A, 60 preferred B.
+
+Estimate the proportion of all residents that would support candidate A over B. Do you expect this estimate to be biased? Estimate the SD of this estimate.
+
+:::{.fragment style="margin-top:1.5em"}
+$\hat p=90/150=0.6$. This estimate should be unbiased.
+
+Estimate variance by substituting $\hat p$ for $p$, i.e:
+$$
+\v{\hat p}=\frac{p(1-p)}n=\frac{0.6(1-0.6)}{150}=0.0016
+$$
+So SD $=0.04$
+:::
+
+
+## Method of moments
+
+<style>#method-of-moments mjx-container[display]{margin:0!important}</style>
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Extending this further, the **method of moments** (MOM) uses the moments of a RV, i.e. $\e{X}$, $\e{X^2}$, $\e{X^3}$, ... to estimate parameters.
+
+Recall $\v{X}=\e{X^2}-(\e{X})^2$, so variance also called the **second central moment**.
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:1.5em"}
+Example: suppose we have $X_i$ iid from an exponential distribution with some unknown $\lambda$. We know from theory that:
+$$
+\bar X\nto\e{X}=\frac1\lambda
+$$
+Therefore it stands to reason that $\hat\lambda=1/\bar X$ should be a good estimator for $\lambda$
+:::
+
+:::{.fragment style="margin-top:1.5em"}
+Example: suppose we sample from $X\sim\exp{\lambda=5}$ (ofc normally we don't know $\lambda$). Imagine we repeat the following experiment a large number of times: draw $n=200$ observations, then apply $\hat\lambda=1/\bar X$. What is the sampling distribution of $\hat\lambda$?
+
+```{r}
+# estimate lambda across many samples using 1/mean
+lambda.hats = replicate(1e4,1/mean(rexp(200,5)))
+```
+:::
+
+
+## Exponential example (cont.)
+
+```{r,fig.height=5.5}
+hist(lambda.hats) ; abline(v=mean(lambda.hats),col="red",lwd=4)
+```
+
+
+## Exponential example, using SD
+
+Note: since $\sigma^2=1/\lambda^2$, also possible to use (sample SD)^-1^ to estimate $\lambda$, though generally higher moments have more variance, so may be worse, but let's test it!
+
+```{r,fig.height=4.5}
+# estimate lambda across many samples using 1/sd
+lambda.hats2 = replicate(1e4,1/sd(rexp(200,5)))
+hist(lambda.hats2) ; abline(v=mean(lambda.hats2),col="red",lwd=4)
+```
+
+
+## Exponential example, replotting both statistics
+
+```{r}
+enframe(c("1/mean"=lambda.hats,"1/sd"=lambda.hats2)) %>% mutate(Estimator=gsub("\\d+$","",name)) %>%
+  ggplot(aes(value,color=Estimator)) + geom_density(adjust=2,linewidth=1) + xlab("lambda hat") +
+  ggtitle("Comparison of 1/mean, 1/sd estimators for exponential lambda parameter")
+```
+
+
+## MOM exercise (gamma dist)
+
+Can also combine moments in expression for more complex problems. Ex:
+
+A Gamma RV takes two parameters, $\alpha,\theta>0$ (shape & scale parameters).  
+If $X\sim\operatorname{Gamma}(\alpha,\theta)$ we have $\e{X}=\alpha\theta$ and $\v{X}=\alpha\theta^2$.  
+Use MOM to define usable $\hat{\theta}$, $\hat{\alpha}$ for the two parameters.
+
+:::{.fragment style="margin-top:1.5em"}
+Ans:
+
+1. Since $\v{X}/\e{X}=\theta$, we can use $\hat\theta=S^2/\bar{X}$
+2. Since $(\e{X})^2/\v{X}=\alpha$, we can use $\hat\alpha=(\bar{X})^2/S^2$
+
+Other estimators are possible using higher moments or other methods, but these are the simplest using the information available. Demo on next slide.
+:::
+
+
+## MOM exercise (gamma dist) cont.
+
+```{r,fig.height=5}
+# pick some arbitrary shape/scale parameters and plot gamma (alpha=3,theta=2)
+plot(\(x)dgamma(x,shape=3,scale=2),from=0,to=20,main="PDF of Gamma(shape=3,scale=2)")
+```
+
+
+## MOM exercise (gamma dist) cont.
+
+```{r,include=F}
+par(mfrow=c(1,2),mar=c(3,3,3,0),mgp=c(2,.6,0))
+```
+```{r,fig.height=4.5}
+# draw many samples of n=100 and check results of estimators are good (alpha=3,theta=2)
+estimates = replicate(1e4, { x=rgamma(100,shape=3,scale=2); c(var(x)/mean(x),mean(x)^2/var(x)) })
+alpha.hats = estimates[2,] ; theta.hats = estimates[1,]
+hist(alpha.hats) ; abline(v=mean(alpha.hats),col="red",lwd=4)
+hist(theta.hats) ; abline(v=mean(theta.hats),col="red",lwd=4)
+```
+```{r,include=F}
+par(mfrow=c(1,1))
+```
+
+
+## Interval estimates
+
+Often, want to know how good a point estimate is, can use **confidence interval** instead
+
+Review exercise: continuing from previous exercise where 90/150 people surveyed preferred candidate A to B. Give a 95% confidence interval for this result.
+
+:::{.fragment style="margin-top:1em"}
+Ans: $\hat p=0.6$ with estimated SD, or **standard error** (SE) of $0.04$. To get 95% confidence interval, need about $2\times$ SE on either side of estimate, so about $(0.52,0.68)$
+:::
+
+:::: {.columns .fragment}
+
+::: {.column width="40%"}
+
+MC version: resimulate with $p\!=\!\hat p$, then find 95% central band of new resimulated point estimates
+
+```{r}
+new.X = rbinom(1e5,150,90/150)
+new.phats = new.X/150
+(ci = quantile(new.phats,c(.025,.975)))
+```
+```{r,eval=F}
+hist(new.phats)
+abline(v=ci, col="red", lwd=3)
+```
+
+:::
+
+:::{.column width="60%"}
+
+```{r,echo=F,fig.width=6,fig.height=4}
+hist(new.phats)
+abline(v=ci, col="red", lwd=3)
+```
+
+:::
+
+::::
+
+
+## Wait what? MC interval explained
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Why does this work? Suppose we are trying to estimate a parameter $\theta$ with our observed sample statistic $S$. After fitting with $S$, we resimulate to get a new set of statistics $S^*$. One can check these are generally approximately true with typical sample sizes:
+
+1. $\e{S^*}=S$
+2. $\v{S^*}\approx\v{S}$
+3. $S^*$ symmetric about $\e{S^*}$
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1}
+Together, these properties imply that the **distribution of $S^*$ around $S$ is _similar_ to the distribution of $S$ around $\theta$**. Thus, resimulating $S^*$ around $S$ estimates the variability of $S$, which is used to compute the CI.
+
+This is a highly simplified argument. For more mathematical details, see Karl Rohe's writeup [here](https://karlrohe.github.io/340-Spring21/text/chapter_04_estimation/LogicOfStatisticalEstimation.html#what-makes-this-logic-logical). Visual demo on next page...
+:::
+
+
+## Demo of MC interval
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Suppose we sample $n=100$ from a known normal RV with unknown $\mu=10$, $\sigma^2=2^2$. We observe the following sample statistics:
+
+```{r,include=F}
+set.seed(1)
+```
+```{r}
+x = rnorm(100, 10, 2) ; c(mean(x), sd(x))
+```
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1}
+Thus, $S=\bar X\approx`r round(mean(x),2)`$. Then, we resimulate many times using $S$ to get distribution of $S^*$:
+
+```{r}
+new.means = replicate(1e4,mean(rnorm(100,mean(x),sd(x)))) ; c(ms<-mean(new.means),ss<-sd(new.means))
+```
+:::
+
+:::{.fragment}
+Compare distribution of $S=\bar X$ around $\mu=10$ with distribution of $S^*$ around $S\approx`r round(mean(x),2)`$
+
+```{r ci.plot,eval=F}
+# adjust=3.5 smoothes out S* a bit more, but distorts the density curve,
+# hence quantiles of S* later plotted with ±z=2.2 to match distorted density
+ggplot() + geom_function(aes(color="S"),fun=\(x)dnorm(x,10,2/10),xlim=c(9.2,10.8),linewidth=1.5) + 
+  geom_density(data=tibble(X=new.means),aes(X,color="S*"),adjust=3.5,linewidth=1.5,key_glyph="path") +
+  geom_linerange(aes(x=c(10,mean(x))),ymin=0,ymax=1.99) + labs(color="Statistic",x=NULL,y=NULL) +
+  stat_function(fun=\(x)dnorm(x,10,2/10),geom="area",xlim=c(9.2,9.6),fill="#1d9d79",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,10,2/10),geom="area",xlim=c(10.4,10.8),fill="#1d9d79",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,ms,ss*1.12),geom="area",xlim=ms+ss*c(-4,-2.2),fill="#d76420",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,ms,ss*1.12),geom="area",xlim=ms+ss*c(2.2,4),fill="#d76420",alpha=.5) +
+  scale_x_continuous(breaks=seq(9.2,10.8,.2),minor_breaks=NULL,expand=0) + 
+  scale_y_continuous(expand=0,limits=c(0,2.1))
+```
+:::
+
+
+## Demo of MC interval (cont.)  {transition="slide-in fade-out"}
+
+```{r,ref.label='ci.plot',eval=T,echo=F,fig.height=4}
+```
+
+- Green curve is theoretical distribution of $S\!=\!\bar X\!\sim\!\norm{10,2^2/100}$ about $\mu\!=\!10$
+- Orange curve is simulated distribution of $S^*$ about observed sample mean $\bar X\!\approx\!`r round(mean(x),2)`$
+- Note two curves have similar shape/width, just shifted
+- 95% of time, $\bar X\!\in\!(9.6,10.4)$, so that quantiles of $S^*$, taken as CI, contains $\mu\!=\!10$
+
+
+## Demo of MC interval (cont.)  {transition="fade-in slide-out"}
+
+```{r,echo=F,fig.height=4}
+set.seed(286) ; x = rnorm(100, 10, 2)
+new.means = replicate(1e4,mean(rnorm(100,mean(x),sd(x)))) ; ms=mean(new.means) ; ss=sd(new.means)
+ggplot() + geom_function(aes(color="S"),fun=\(x)dnorm(x,10,2/10),xlim=c(9.2,10.8),linewidth=1.5) + 
+  geom_density(data=tibble(X=new.means),aes(X,color="S*"),adjust=2,linewidth=1.5,key_glyph="path") +
+  geom_linerange(aes(x=c(10,mean(x))),ymin=0,ymax=1.99) + labs(color="Statistic",x=NULL,y=NULL) +
+  stat_function(fun=\(x)dnorm(x,10,2/10),geom="area",xlim=c(9.2,9.6),fill="#1d9d79",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,10,2/10),geom="area",xlim=c(10.4,10.8),fill="#1d9d79",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,ms,ss*1.04),geom="area",xlim=ms+ss*c(-4,-2.1),fill="#d76420",alpha=.5) +
+  stat_function(fun=\(x)dnorm(x,ms,ss*1.04),geom="area",xlim=ms+ss*c(2.1,4),fill="#d76420",alpha=.5) +
+  scale_x_continuous(breaks=seq(9.2,10.8,.2),minor_breaks=NULL,expand=0) + 
+  scale_y_continuous(expand=0,limits=c(0,2.1))
+```
+
+- 5% of the time, $\bar X\notin(9.6,10.4)$, and quantiles of $S^*$ taken as CI won't contain $\mu=10$
+- Here, in this "unlucky" rerun, observed sample mean $\bar X\!\approx\!`r round(mean(x),2)`$
+- This is outside the central 95% range of $S$, so the quantiles of $S^*$ don't contain $\mu$
+
+Similar argument/demo approximately applies to other RVs too, not just normal
+
+
+## Generalized MC confidence interval steps:
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+1. Identify RV **model** & **parameter(s)** for data
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1}
+2. Pick point **estimator** function (e.g. using LLN, MOM, or other method)
+:::
+
+:::{.fragment .fade-in-then-semi-out}
+3. Apply estimator to get initial **point estimate** (S)
+:::
+
+:::{.fragment .fade-in-then-semi-out}
+4. Assume true parameter equals point estimate, then **resimulate** many times, each time:
+   - Generate **new dataset of same size as original**,
+   - Compute new point estimate ($S^*$) of newly generated data.
+:::
+
+:::{.fragment .fade-in-then-semi-out}
+5. Take appropriate quantiles of $S^*$ distribution as **confidence interval**.
+:::
+
+:::{.fragment}
+6. Interpret results in context of original question!
+   - E.g. "We are 95% confident that true [parameter] is in [interval]."
+:::
+
+
+## Exercise:
+
+Suppose we have the following $n=30$ observations from a Poisson distribution:
+
+```{r,echo=F}
+set.seed(1)
+x = rpois(30,8)
+```
+
+> `r toString(x)`
+
+1. What's a good point estimator function?
+
+2. Give a point estimate of the rate parameter $\lambda$.
+
+3. Find a 95% confidence interval for $\lambda$.
+
+Answer in steps:
+
+:::{.fragment style="margin-top:-.5em"}
+1. Sample mean works great here. Variance also works, but will have higher SE.
+:::
+
+:::{.fragment style="margin-top:-.7em"}
+2. Find sample mean $\bar X\approx`r round(mean(x),2)`$.
+:::
+
+:::{.fragment}
+```{r}
+# 3. repeatedly generate n=30 new poisson points and find new lambda hats, then take quantiles
+new.lambda.hats = replicate(1e4,mean(rpois(30,mean(x))))
+quantile(new.lambda.hats,c(.025,.975))
+```
+:::
+
+
+## Applied example: mark & recapture
+
+More interesting example. In ecology, [mark & recapture](https://en.wikipedia.org/wiki/Mark_and_recapture) is a common technique to estimate the population of a species of animals where a 1^st^ sample is marked and released, then later a 2^nd^ sample is taken and the number already marked is counted. Assume in both samples, any animal in population is **equally likely** to be captured. &nbsp; [Let:]{.fragment data-fragment-index="1"}
+
+:::{.fragment data-fragment-index="1"}
+- $N$ be total number of animals in population
+- $n$ be number of animals marked in 1^st^ sample
+- $K$ be number of animals captured in 2^nd^ sample
+- $k$ be number of animals in 2^nd^ sample that are marked
+:::
+
+:::{.fragment}
+Under assumption, $k/K=n/N$, so an estimator could be $\hat{N}=nK/k$. This is called the Lincoln–Petersen estimator.
+
+Ex: You're studying walleyes in Lake Mendota. You catch & mark 500 fish. A few weeks later, you catch another 500, 12 of which were already marked. Give a point estimate for the total walleye population $N$ in the lake. &nbsp; [**Ans:** using estimator, $\hat N=500^2/12\approx20833$.]{.fragment}
+:::
+
+## Applied example: mark & recapture (cont.)
+
+Next, use MC to find a 95% confidence interval for your estimate (follow the checklist!)
+
+(*answer in steps*) First, simulate one new "observed" $k$ for $N=\hat N$:
+
+:::{.fragment style="margin-top:1em"}
+Different ways to simulate:
+
+```{r}
+# suppose first 1-500 of fish are marked, then can simulate n using sample()
+sim = \(N,n=500,K=500) sum(sample(N,K)<=n)
+sim(20833)
+# can also approximate with rbinom(), i.e. each fish modeled as n/N chance of being marked
+sim2 = \(N,n=500,K=500,M=1) rbinom(M,K,n/N)
+sim2(20833)
+# can even approximate with rpois(), i.e. draw fish with averate rate of n*K/N
+sim3 = \(N,n=500,K=500,M=1) rpois(M,n*K/N)
+sim3(20833)
+```
+
+Can we check if all three of these give similar results?
+:::
+
+
+## Applied example: mark & recapture (cont.)
+
+```{r}
+# can check all three are comparable
+tibble(x=c(replicate(1e4,sim(20833)),sim2(20833,M=1e4),sim3(20833,M=1e4)),
+       type=rep(c("sample","binom","pois"),each=1e4)) %>%
+  ggplot(aes(x)) + facet_grid(type~.) + geom_bar()
+```
+
+
+## Applied example: mark & recapture (cont.)
+
+Next, repeat this many times, each time computing $\hat N$, then take quantiles as CI
+
+:::{.fragment}
+```{r,fig.height=4}
+# using sample()
+N.hats = 500^2/replicate(1e4,sim(20833))
+quantile(N.hats,c(.025,.975))
+# using rbinom()
+N.hats = 500^2/sim2(20833,M=1e4)
+quantile(N.hats,c(.025,.975))
+# using rpois()
+N.hats = 500^2/sim3(20833,M=1e4)
+quantile(N.hats,c(.025,.975))
+```
+All methods give same 95% CI for $N$ of $(13158,41667)$.
+:::
+
+
+## Assigned readings
+
+Please read the following:
+
+ - [Subsection 22.7](https://brianreedpowers.github.io/stat340/estimation2.html#using-the-clt-to-build-a-ci) in Brian's notes on CLT based confidence intervals (basically the same as what we did previously in 240)
+
+ - Short page on [MSE of estimators & bias-variance decomposition](https://pages.stat.wisc.edu/~bwu62/MSE_estimators.html)
+
