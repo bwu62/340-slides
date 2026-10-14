@@ -4,6 +4,7 @@ title: |
   | Estimation
 format:
   revealjs:
+    touch: false
     title: "STAT340 - Topic 4: Estimation"
     theme: simple
     smaller: true
@@ -548,7 +549,6 @@ quantile(new.lambda.hats,c(.025,.975))
 ```
 :::
 
-
 ## Applied example: mark & recapture
 
 More interesting example. In ecology, [mark & recapture](https://en.wikipedia.org/wiki/Mark_and_recapture) is a common technique to estimate the population of a species of animals where a 1^st^ sample is marked and released, then later a 2^nd^ sample is taken and the number already marked is counted. Assume in both samples, any animal in population is **equally likely** to be captured. &nbsp; [Let:]{.fragment data-fragment-index="1"}
@@ -621,6 +621,107 @@ All methods give same 95% CI for $N$ of $(13158,41667)$.
 :::
 
 
+## Another applied example: German Tank problem
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+During WWII, some parts of captured German tanks were found to likely have sequential serial numbers. This gave rise to an [interesting problem](https://en.wikipedia.org/wiki/German_tank_problem): given a sample of sequential serial numbers, can we statistically estimate the total number of tanks?
+
+```{r echo=F,eval=T}
+set.seed(15)
+true.num = 425 ; n = 10
+serials = sample(true.num,n)
+```
+
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:1em"}
+
+Suppose we have the following set of `r n` serial numbers from captured tanks below. Model the true population of serial numbers as Discrete Uniform$(1,N)$ where $N$ is the true total number of tanks. Come up with at least 2 different sensible estimators for $N$.
+
+> `r toString(serials)`
+
+:::
+
+:::{.fragment .fade-in-then-semi-out}
+
+Ans: the natural thing to try is the sample max, for a second option can use MOM since we know expectation $\mu=(N+1)/2$ we can use $\hat N=2\cdot\bar X-1$
+
+```{r}
+# data is in vector serials, sample size set to n, compute point estimates
+( N.max = max(serials) )
+( N.mom = 2*mean(serials)-1 )
+```
+
+Can you now find a 95% confidence interval?
+:::
+
+
+## German Tank problem Confidence interval
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Sample max works poorly for CI, since using point estimate as true $N$ then resampling generally gives lower MC resimulated sample max, due to its inherent biasedness
+
+```{r}
+N.max.resim = replicate(1e5, max(sample(N.max,n)))  # try max for CI, but result doesn't
+quantile(N.max.resim, c(.025, .975))                # even contain original point estimate!
+N.mom.resim = replicate(1e5, 2*mean(sample(N.mom,n))-1)  # MOM estimator is ok though,
+quantile(N.mom.resim, c(.025,.975))                      # doesn't run into same issue
+```
+
+Follow up: can be shown minimum-variance unbiased estimator (MVUE) is $M(1\!+\frac1n)\!-\!1$ where $M$, $n$ are sample maximum and size. Find the MVUE point & interval estimates
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1}
+```{r}
+mvue = \(x) max(x)*(1+1/length(x))-1  # define estimator function for ease
+( N.mvue = mvue(serials) )
+N.mvue.resim = replicate(1e5, mvue(sample(N.mvue,n)))
+quantile(N.mvue.resim, c(.025,.975))
+```
+:::
+
+
+## CLT-based confidence intervals
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Can also use CLT for CI for the true mean. Suppose $X$ is some RV (not necessarily normal) with mean $\mu$ and variance $\sigma^2$. Generally, if you have $\approx30$ observations or more, sample mean $\bar X$ can be treated as approx. normal with mean $\mu$ and variance $\sigma^2/n$ even if $X$ isn't normal. Then, an approx. 95% CI for $\mu$ is $\bar X\pm 1.96 \cdot S/\sqrt n$ where $S$ is sample SD
+
+```{r eval=T,echo=F}
+set.seed(1) ; n=30 ; true.lambda = 10/60
+x = round(rexp(n,true.lambda),1)
+```
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1}
+Example: we have a sample of `r n` wait times in minutes between customers walking into a coffee shop one morning. Find 95% CI for $\mu$ then use this to find CI for $\lambda$
+
+> `r toString(x)` ($\bar X=`r round(mean(x),2)`$, $S=`r round(sd(x),2)`$)
+
+:::
+
+:::{.fragment}
+```{r}
+# 95% CI for true mean mu
+( ci = mean(x) + c(-1,1) * 1.96 * sd(x)/sqrt(length(x)) )
+```
+
+Note since $\mu=1/\lambda$, we can take the reciprocal of the bounds to get CI for $\lambda$
+
+```{r}
+( 1 / ci ) * 60  # convert to more natural rate of customers per hour
+```
+:::
+
+
+## Testing/confidence equivalence
+
+Finally as a topic, you can use a confidence interval to conduct an equivalent level test. E.g. suppose you want to test if some parameter $\theta=0$ vs $\ne0$ at $\alpha=0.05$.
+
+This is equivalent checking if a 95% confidence interval for $\theta$ includes 0 or not.
+
+If one-sided alternative used instead with same $\alpha$, equivalent to checking if 90% confidence interval includes 0.
+
+
 ## Assigned readings
 
 Please read the following:
@@ -629,3 +730,42 @@ Please read the following:
 
  - Short page on [MSE of estimators & bias-variance decomposition](https://pages.stat.wisc.edu/~bwu62/MSE_estimators.html)
 
+
+<!--
+coverage example?
+
+```{r}
+n = 80
+lambda_true = 2.718
+
+m = 1e3
+coverage = 0
+
+for(i in 1:m){
+  data = rpois(n=n, lambda=lambda_true)
+  reps = replicate(1e3, mean(rpois(n,mean(data))))
+  ci = quantile(reps, probs=c(0.005,0.995))
+  if(ci[1] <= lambda_true & ci[2] >= lambda_true) coverage = coverage + 1
+}
+
+coverage / m
+
+
+
+n = 25
+lambda_true = 5
+
+m = 1e3
+coverage = 0
+
+for(i in 1:m){
+  data = rexp(n=n, rate=lambda_true)
+  reps = replicate(1e3, 1/mean(rexp(n,1/mean(data))))
+  ci = quantile(reps, probs=c(0.05,0.95))
+  if(ci[1] <= lambda_true & ci[2] >= lambda_true) coverage = coverage + 1
+}
+
+coverage / m
+```
+
+-->

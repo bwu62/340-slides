@@ -4,6 +4,7 @@ title: |
   | Hypothesis testing
 format:
   revealjs:
+    touch: false
     title: "STAT340 - Topic 3: Hypothesis testing"
     theme: simple
     smaller: true
@@ -187,7 +188,7 @@ Here's the actual original experiment:
 :::{.fragment}
 ```{r}
 # 1. prepare cups and randomize guesses
-cups = c(T,T,T,T,F,F,F,F)  ;  (guess = sample(cups))
+cups = c('T','T','T','T','M','M','M','M')  ;  (guess = sample(cups))
 ```
 :::
 

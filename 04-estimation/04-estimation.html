@@ -6,8 +6,8 @@
 <script src="04-estimation_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="04-estimation_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="04-estimation_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="04-estimation_files/libs/quarto-html/quarto-syntax-highlighting-9e1f2a4632985dffc2c80318c992baf5.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.6.40">
+<link href="04-estimation_files/libs/quarto-html/quarto-syntax-highlighting-1b3e43c72e8be34557c75123b0b69e0d.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
 
   <title>STAT340 - Topic 4: Estimation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,8 +28,9 @@
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -40,7 +41,7 @@
     }
     @media print {
     pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
     }
     pre.numberSource code
       { counter-reset: source-line 0; }
@@ -91,7 +92,7 @@
     code span.vs { color: #4e9a06; } /* VerbatimString */
     code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="04-estimation_files/libs/revealjs/dist/theme/quarto-8d221a629cc1e023ab6f3d04b100f5f5.css">
+  <link rel="stylesheet" href="04-estimation_files/libs/revealjs/dist/theme/quarto-dc8a4fcd20fd5575e1a3b43c6d9b8b69.css">
   <link href="04-estimation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="04-estimation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="04-estimation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -741,6 +742,103 @@ Use MOM to define usable <span class="math inline">\(\hat{\theta}\)</span>, <spa
 <p>All methods give same 95% CI for <span class="math inline">\(N\)</span> of <span class="math inline">\((13158,41667)\)</span>.</p>
 </div>
 </section>
+<section id="another-applied-example-german-tank-problem" class="slide level2">
+<h2>Another applied example: German Tank problem</h2>
+<div class="fragment no-fade-in semi-fade-out" data-fragment-index="1">
+<p>During WWII, some parts of captured German tanks were found to likely have sequential serial numbers. This gave rise to an <a href="https://en.wikipedia.org/wiki/German_tank_problem">interesting problem</a>: given a sample of sequential serial numbers, can we statistically estimate the total number of tanks?</p>
+</div>
+<div class="fragment fade-in-then-semi-out" data-fragment-index="1" style="margin-top:1em">
+<p>Suppose we have the following set of 10 serial numbers from captured tanks below. Model the true population of serial numbers as Discrete Uniform<span class="math inline">\((1,N)\)</span> where <span class="math inline">\(N\)</span> is the true total number of tanks. Come up with at least 2 different sensible estimators for <span class="math inline">\(N\)</span>.</p>
+<blockquote>
+<p>37, 362, 162, 294, 177, 261, 217, 204, 363, 84</p>
+</blockquote>
+</div>
+<div class="fragment fade-in-then-semi-out">
+<p>Ans: the natural thing to try is the sample max, for a second option can use MOM since we know expectation <span class="math inline">\(\mu=(N+1)/2\)</span> we can use <span class="math inline">\(\hat N=2\cdot\bar X-1\)</span></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># data is in vector serials, sample size set to n, compute point estimates</span></span>
+<span id="cb35-2"><a href="" aria-hidden="true" tabindex="-1"></a>( <span class="at">N.max =</span> <span class="fu">max</span>(serials) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 363</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="" aria-hidden="true" tabindex="-1"></a>( <span class="at">N.mom =</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">mean</span>(serials)<span class="sc">-</span><span class="dv">1</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 431.2</code></pre>
+</div>
+</div>
+<p>Can you now find a 95% confidence interval?</p>
+</div>
+</section>
+<section id="german-tank-problem-confidence-interval" class="slide level2">
+<h2>German Tank problem Confidence interval</h2>
+<div class="fragment no-fade-in semi-fade-out" data-fragment-index="1">
+<p>Sample max works poorly for CI, since using point estimate as true <span class="math inline">\(N\)</span> then resampling generally gives lower MC resimulated sample max, due to its inherent biasedness</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="" aria-hidden="true" tabindex="-1"></a>N.max.resim <span class="ot">=</span> <span class="fu">replicate</span>(<span class="fl">1e5</span>, <span class="fu">max</span>(<span class="fu">sample</span>(N.max,n)))  <span class="co"># try max for CI, but result doesn't</span></span>
+<span id="cb39-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(N.max.resim, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))                <span class="co"># even contain original point estimate!</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> 2.5% 97.5% 
+  253   363 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="" aria-hidden="true" tabindex="-1"></a>N.mom.resim <span class="ot">=</span> <span class="fu">replicate</span>(<span class="fl">1e5</span>, <span class="dv">2</span><span class="sc">*</span><span class="fu">mean</span>(<span class="fu">sample</span>(N.mom,n))<span class="sc">-</span><span class="dv">1</span>)  <span class="co"># MOM estimator is ok though,</span></span>
+<span id="cb41-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(N.mom.resim, <span class="fu">c</span>(.<span class="dv">025</span>,.<span class="dv">975</span>))                      <span class="co"># doesn't run into same issue</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> 2.5% 97.5% 
+277.6 582.2 </code></pre>
+</div>
+</div>
+<p>Follow up: can be shown minimum-variance unbiased estimator (MVUE) is <span class="math inline">\(M(1\!+\frac1n)\!-\!1\)</span> where <span class="math inline">\(M\)</span>, <span class="math inline">\(n\)</span> are sample maximum and size. Find the MVUE point &amp; interval estimates</p>
+</div>
+<div class="fragment fade-in-then-semi-out" data-fragment-index="1">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="" aria-hidden="true" tabindex="-1"></a>mvue <span class="ot">=</span> \(x) <span class="fu">max</span>(x)<span class="sc">*</span>(<span class="dv">1</span><span class="sc">+</span><span class="dv">1</span><span class="sc">/</span><span class="fu">length</span>(x))<span class="sc">-</span><span class="dv">1</span>  <span class="co"># define estimator function for ease</span></span>
+<span id="cb43-2"><a href="" aria-hidden="true" tabindex="-1"></a>( <span class="at">N.mvue =</span> <span class="fu">mvue</span>(serials) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 398.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="" aria-hidden="true" tabindex="-1"></a>N.mvue.resim <span class="ot">=</span> <span class="fu">replicate</span>(<span class="fl">1e5</span>, <span class="fu">mvue</span>(<span class="fu">sample</span>(N.mvue,n)))</span>
+<span id="cb45-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(N.mvue.resim, <span class="fu">c</span>(.<span class="dv">025</span>,.<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> 2.5% 97.5% 
+303.7 436.8 </code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="clt-based-confidence-intervals" class="slide level2">
+<h2>CLT-based confidence intervals</h2>
+<div class="fragment no-fade-in semi-fade-out" data-fragment-index="1">
+<p>Can also use CLT for CI for the true mean. Suppose <span class="math inline">\(X\)</span> is some RV (not necessarily normal) with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>. Generally, if you have <span class="math inline">\(\approx30\)</span> observations or more, sample mean <span class="math inline">\(\bar X\)</span> can be treated as approx. normal with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2/n\)</span> even if <span class="math inline">\(X\)</span> isn’t normal. Then, an approx. 95% CI for <span class="math inline">\(\mu\)</span> is <span class="math inline">\(\bar X\pm 1.96 \cdot S/\sqrt n\)</span> where <span class="math inline">\(S\)</span> is sample SD</p>
+</div>
+<div class="fragment fade-in-then-semi-out" data-fragment-index="1">
+<p>Example: we have a sample of 30 wait times in minutes between customers walking into a coffee shop one morning. Find 95% CI for <span class="math inline">\(\mu\)</span> then use this to find CI for <span class="math inline">\(\lambda\)</span></p>
+<blockquote>
+<p>4.5, 7.1, 0.9, 0.8, 2.6, 17.4, 7.4, 3.2, 5.7, 0.9, 8.3, 4.6, 7.4, 26.5, 6.3, 6.2, 11.3, 3.9, 2, 3.5, 14.2, 3.9, 1.8, 3.4, 0.6, 0.4, 3.5, 23.8, 7, 6 (<span class="math inline">\(\bar X=6.5\)</span>, <span class="math inline">\(S=6.41\)</span>)</p>
+</blockquote>
+</div>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 95% CI for true mean mu</span></span>
+<span id="cb47-2"><a href="" aria-hidden="true" tabindex="-1"></a>( <span class="at">ci =</span> <span class="fu">mean</span>(x) <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">*</span> <span class="fl">1.96</span> <span class="sc">*</span> <span class="fu">sd</span>(x)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">length</span>(x)) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.209761 8.796906</code></pre>
+</div>
+</div>
+<p>Note since <span class="math inline">\(\mu=1/\lambda\)</span>, we can take the reciprocal of the bounds to get CI for <span class="math inline">\(\lambda\)</span></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="" aria-hidden="true" tabindex="-1"></a>( <span class="dv">1</span> <span class="sc">/</span> ci ) <span class="sc">*</span> <span class="dv">60</span>  <span class="co"># convert to more natural rate of customers per hour</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14.25259  6.82058</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="testingconfidence-equivalence" class="slide level2">
+<h2>Testing/confidence equivalence</h2>
+<p>Finally as a topic, you can use a confidence interval to conduct an equivalent level test. E.g. suppose you want to test if some parameter <span class="math inline">\(\theta=0\)</span> vs <span class="math inline">\(\ne0\)</span> at <span class="math inline">\(\alpha=0.05\)</span>.</p>
+<p>This is equivalent checking if a 95% confidence interval for <span class="math inline">\(\theta\)</span> includes 0 or not.</p>
+<p>If one-sided alternative used instead with same <span class="math inline">\(\alpha\)</span>, equivalent to checking if 90% confidence interval includes 0.</p>
+</section>
 <section id="assigned-readings" class="slide level2">
 <h2>Assigned readings</h2>
 <p>Please read the following:</p>
@@ -748,6 +846,67 @@ Use MOM to define usable <span class="math inline">\(\hat{\theta}\)</span>, <spa
 <li><p><a href="https://brianreedpowers.github.io/stat340/estimation2.html#using-the-clt-to-build-a-ci">Subsection 22.7</a> in Brian’s notes on CLT based confidence intervals (basically the same as what we did previously in 240)</p></li>
 <li><p>Short page on <a href="https://pages.stat.wisc.edu/~bwu62/MSE_estimators.html">MSE of estimators &amp; bias-variance decomposition</a></p></li>
 </ul>
+<!--
+coverage example?
+
+
+::: {.cell layout-align="center"}
+
+```{.r .cell-code}
+n = 80
+lambda_true = 2.718
+
+m = 1e3
+coverage = 0
+
+for(i in 1:m){
+  data = rpois(n=n, lambda=lambda_true)
+  reps = replicate(1e3, mean(rpois(n,mean(data))))
+  ci = quantile(reps, probs=c(0.005,0.995))
+  if(ci[1] <= lambda_true & ci[2] >= lambda_true) coverage = coverage + 1
+}
+
+coverage / m
+```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+[1] 0.993
+```
+
+
+:::
+
+```{.r .cell-code}
+n = 25
+lambda_true = 5
+
+m = 1e3
+coverage = 0
+
+for(i in 1:m){
+  data = rexp(n=n, rate=lambda_true)
+  reps = replicate(1e3, 1/mean(rexp(n,1/mean(data))))
+  ci = quantile(reps, probs=c(0.05,0.95))
+  if(ci[1] <= lambda_true & ci[2] >= lambda_true) coverage = coverage + 1
+}
+
+coverage / m
+```
+
+::: {.cell-output .cell-output-stdout}
+
+```
+[1] 0.892
+```
+
+
+:::
+:::
+
+
+-->
 
 </section>
     </div>
@@ -840,7 +999,7 @@ Use MOM to define usable <span class="math inline">\(\hat{\theta}\)</span>, <spa
         center: false,
 
         // Enables touch navigation on devices with touch input
-        touch: true,
+        touch: false,
 
         // Loop the presentation
         loop: false,
@@ -1046,190 +1205,172 @@ Use MOM to define usable <span class="math inline">\(\hat{\theta}\)</span>, <spa
     
 
     <script id="quarto-html-after-body" type="application/javascript">
-    window.document.addEventListener("DOMContentLoaded", function (event) {
-      const toggleBodyColorMode = (bsSheetEl) => {
-        const mode = bsSheetEl.getAttribute("data-mode");
-        const bodyEl = window.document.querySelector("body");
-        if (mode === "dark") {
-          bodyEl.classList.add("quarto-dark");
-          bodyEl.classList.remove("quarto-light");
-        } else {
-          bodyEl.classList.add("quarto-light");
-          bodyEl.classList.remove("quarto-dark");
-        }
-      }
-      const toggleBodyColorPrimary = () => {
-        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-        if (bsSheetEl) {
-          toggleBodyColorMode(bsSheetEl);
-        }
-      }
-      toggleBodyColorPrimary();  
-      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
-      tabsets.forEach(function(tabset) {
-        const tabby = new Tabby('#' + tabset.id);
-      });
-      const isCodeAnnotation = (el) => {
-        for (const clz of el.classList) {
-          if (clz.startsWith('code-annotation-')) {                     
-            return true;
-          }
-        }
-        return false;
-      }
-      const onCopySuccess = function(e) {
-        // button target
-        const button = e.trigger;
-        // don't keep focus
-        button.blur();
-        // flash "checked"
-        button.classList.add('code-copy-button-checked');
-        var currentTitle = button.getAttribute("title");
-        button.setAttribute("title", "Copied!");
-        let tooltip;
-        if (window.bootstrap) {
-          button.setAttribute("data-bs-toggle", "tooltip");
-          button.setAttribute("data-bs-placement", "left");
-          button.setAttribute("data-bs-title", "Copied!");
-          tooltip = new bootstrap.Tooltip(button, 
-            { trigger: "manual", 
-              customClass: "code-copy-button-tooltip",
-              offset: [0, -8]});
-          tooltip.show();    
-        }
-        setTimeout(function() {
-          if (tooltip) {
-            tooltip.hide();
-            button.removeAttribute("data-bs-title");
-            button.removeAttribute("data-bs-toggle");
-            button.removeAttribute("data-bs-placement");
-          }
-          button.setAttribute("title", currentTitle);
-          button.classList.remove('code-copy-button-checked');
-        }, 1000);
-        // clear code selection
-        e.clearSelection();
-      }
-      const getTextToCopy = function(trigger) {
-          const codeEl = trigger.previousElementSibling.cloneNode(true);
-          for (const childEl of codeEl.children) {
-            if (isCodeAnnotation(childEl)) {
-              childEl.remove();
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
             }
           }
-          return codeEl.innerText;
-      }
-      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-        text: getTextToCopy
-      });
-      clipboard.on('success', onCopySuccess);
-      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-          text: getTextToCopy,
-          container: window.document.getElementById('quarto-embedded-source-code-modal')
-        });
-        clipboardModal.on('success', onCopySuccess);
-      }
-        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-        var mailtoRegex = new RegExp(/^mailto:/);
-          var filterRegex = new RegExp('/' + window.location.host + '/');
-        var isInternal = (href) => {
-            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          return false;
         }
-        // Inspect non-navigation links and adorn them if external
-     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-        for (var i=0; i<links.length; i++) {
-          const link = links[i];
-          if (!isInternal(link.href)) {
-            // undo the damage that might have been done by quarto-nav.js in the case of
-            // links that we want to consider external
-            if (link.dataset.originalHref !== undefined) {
-              link.href = link.dataset.originalHref;
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
             }
-          }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
         }
-      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-        const config = {
-          allowHTML: true,
-          maxWidth: 500,
-          delay: 100,
-          arrow: false,
-          appendTo: function(el) {
-              return el.closest('section.slide') || el.parentElement;
-          },
-          interactive: true,
-          interactiveBorder: 10,
-          theme: 'light-border',
-          placement: 'bottom-start',
-        };
-        if (contentFn) {
-          config.content = contentFn;
-        }
-        if (onTriggerFn) {
-          config.onTrigger = onTriggerFn;
-        }
-        if (onUntriggerFn) {
-          config.onUntrigger = onUntriggerFn;
-        }
-          config['offset'] = [0,0];
-          config['maxWidth'] = 700;
-        window.tippy(el, config); 
-      }
-      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-      for (var i=0; i<noterefs.length; i++) {
-        const ref = noterefs[i];
-        tippyHover(ref, function() {
-          // use id or data attribute instead here
-          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-          try { href = new URL(href).hash; } catch {}
-          const id = href.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note) {
-            return note.innerHTML;
-          } else {
-            return "";
-          }
-        });
-      }
-      const findCites = (el) => {
-        const parentEl = el.parentElement;
-        if (parentEl) {
-          const cites = parentEl.dataset.cites;
-          if (cites) {
-            return {
-              el,
-              cites: cites.split(' ')
-            };
-          } else {
-            return findCites(el.parentElement)
-          }
-        } else {
-          return undefined;
-        }
-      };
-      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-      for (var i=0; i<bibliorefs.length; i++) {
-        const ref = bibliorefs[i];
-        const citeInfo = findCites(ref);
-        if (citeInfo) {
-          tippyHover(citeInfo.el, function() {
-            var popup = window.document.createElement('div');
-            citeInfo.cites.forEach(function(cite) {
-              var citeDiv = window.document.createElement('div');
-              citeDiv.classList.add('hanging-indent');
-              citeDiv.classList.add('csl-entry');
-              var biblioDiv = window.document.getElementById('ref-' + cite);
-              if (biblioDiv) {
-                citeDiv.innerHTML = biblioDiv.innerHTML;
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
               }
-              popup.appendChild(citeDiv);
-            });
-            return popup.innerHTML;
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
           });
         }
-      }
-    });
-    </script>
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
     
 
 </body></html>

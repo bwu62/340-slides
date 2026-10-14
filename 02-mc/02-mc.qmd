@@ -4,6 +4,7 @@ title: |
   | Monte Carlo methods
 format:
   revealjs:
+    touch: false
     title: "STAT340 - Topic 2: Monte Carlo methods"
     theme: simple
     smaller: true

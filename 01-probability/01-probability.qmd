@@ -1090,6 +1090,15 @@ p4 = tibble(x = rexp(1000)) %>% ggplot(aes(x)) +
 ::::
 
 
+## Unempirical rule
+
+<br/>
+
+<center>![](normal_funny.png){width="100%"}</center>
+
+<small>source: <https://xkcd.com/2118/></small>
+
+
 ## RV exercises
 
 ::::: {.columns}
@@ -1354,7 +1363,7 @@ $$
 
 Since $\e{S^2}=\sigma^2$, this estimator is **unbiased** (more on this in later chapters).
 
-
+<!--
 ## Bonus: E/Var for continuous RV
 
 For continuous RV $X$ with PDF $f(x)$, E/Var defined as:
@@ -1388,7 +1397,7 @@ $$
 :::
 
 ::::
-
+-->
 
 ## Additional readings/practice
 

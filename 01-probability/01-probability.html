@@ -997,6 +997,14 @@ standard normal <span class="math inline">\(Z\)</span></p>
 </div>
 </div></div>
 </section>
+<section id="unempirical-rule" class="slide level2">
+<h2>Unempirical rule</h2>
+<p><br></p>
+<center>
+<img data-src="normal_funny.png" style="width:100.0%">
+</center>
+<p><small>source: <a href="https://xkcd.com/2118/" class="uri">https://xkcd.com/2118/</a></small></p>
+</section>
 <section id="rv-exercises" class="slide level2">
 <h2>RV exercises</h2>
 <div class="columns">
@@ -1226,32 +1234,41 @@ X_i\iid\norm{100,15^2}
 \end{align}
 \]</span></p>
 <p>Since <span class="math inline">\(\e{S^2}=\sigma^2\)</span>, this estimator is <strong>unbiased</strong> (more on this in later chapters).</p>
-</section>
-<section id="bonus-evar-for-continuous-rv" class="slide level2">
-<h2>Bonus: E/Var for continuous RV</h2>
-<p>For continuous RV <span class="math inline">\(X\)</span> with PDF <span class="math inline">\(f(x)\)</span>, E/Var defined as: <span class="math display">\[
+<!--
+## Bonus: E/Var for continuous RV
+
+For continuous RV $X$ with PDF $f(x)$, E/Var defined as:
+$$
 \e X=\int_\Omega xf(x)dx\qquad\v X=\int_\Omega (x-\mu)^2f(x)dx
-\]</span> Example: let <span class="math inline">\(X=\unif{a,b}\)</span>, then <span class="math inline">\(f(x)=\frac1{b-a}\)</span>, and</p>
-<div class="columns">
-<div class="column" style="width:35%;">
-<p><span class="math display">\[
+$$
+Example: let $X=\unif{a,b}$, then $f(x)=\frac1{b-a}$, and
+
+:::::{.columns}
+
+:::{.column width="35%"}
+$$
 \begin{align}
-\e X&amp;=\int_a^bx\,\frac1{b-a}\,dx\\
-&amp;=\frac12\left[\frac{x^2}{b-a}\right]_a^b\\
-&amp;=\frac12\frac{b^2-a^2}{b-a}\\
-&amp;=\frac{a+b}2
+\e X&=\int_a^bx\,\frac1{b-a}\,dx\\
+&=\frac12\left[\frac{x^2}{b-a}\right]_a^b\\
+&=\frac12\frac{b^2-a^2}{b-a}\\
+&=\frac{a+b}2
 \end{align}
-\]</span></p>
-</div><div class="column" style="width:65%;">
-<p><span class="math display">\[
+$$
+:::
+
+:::{.column width="65%"}
+$$
 \begin{align}
-\v{\bar X}&amp;=\int_a^b\left(x-\frac12(a+b)\right)^2\frac1{b-a}\,dx\\
-&amp;=\frac1{b-a}\left[\frac13\left(x-\frac{a+b}{2}\right)^3\right]_a^b\\
-&amp;=\frac1{24(b-a)}\cdot[(2x-a-b)^3]_a^b\\
-&amp;=\frac1{24(b-a)}\cdot[2(b-a)^3]~=~\frac{(b-a)^2}{12}
+\v{\bar X}&=\int_a^b\left(x-\frac12(a+b)\right)^2\frac1{b-a}\,dx\\
+&=\frac1{b-a}\left[\frac13\left(x-\frac{a+b}{2}\right)^3\right]_a^b\\
+&=\frac1{24(b-a)}\cdot[(2x-a-b)^3]_a^b\\
+&=\frac1{24(b-a)}\cdot[2(b-a)^3]~=~\frac{(b-a)^2}{12}
 \end{align}
-\]</span></p>
-</div></div>
+$$
+:::
+
+::::
+-->
 </section>
 <section id="additional-readingspractice" class="slide level2">
 <h2>Additional readings/practice</h2>
