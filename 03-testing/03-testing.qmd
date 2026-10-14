@@ -4,7 +4,7 @@ title: |
   | Hypothesis testing
 format:
   revealjs:
-    touch: false
+    # touch: false
     title: "STAT340 - Topic 3: Hypothesis testing"
     theme: simple
     smaller: true

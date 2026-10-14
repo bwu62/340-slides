@@ -4,6 +4,7 @@ title: |
   | Prediction
 format:
   revealjs:
+    # touch: false
     title: "STAT340 - Topic 5: Prediction"
     theme: simple
     smaller: true

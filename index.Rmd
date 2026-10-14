@@ -5,16 +5,16 @@ output: html_document
 
 [(source)](https://github.com/bwu62/340-slides)
 
-## Topic 1: Probability & Random Variables: [html](01-probability/01-probability.html) [pdf](01-probability/stat340_01_probability.pdf)
+## Topic 1: Probability & Random Variables: &nbsp; [html](01-probability/01-probability.html), [vert](01-probability/01-probability.html?view=print), [pdf](01-probability/stat340_01_probability.pdf)
 
-## Topic 2: Monte Carlo methods: [html](02-mc/02-mc.html) [pdf](02-mc/stat340_02_mc.pdf)
+## Topic 2: Monte Carlo methods: &nbsp; [html](02-mc/02-mc.html), [vert](02-mc/02-mc.html?view=print), [pdf](02-mc/stat340_02_mc.pdf)
 
-## Topic 3: Hypothesis testing: [html](03-testing/03-testing.html) [pdf](03-testing/stat340_03_testing.pdf)
+## Topic 3: Hypothesis testing: &nbsp; [html](03-testing/03-testing.html), [vert](03-testing/03-testing.html?view=print), [pdf](03-testing/stat340_03_testing.pdf)
 
-## Topic 4: Estimation: [html](04-estimation/04-estimation.html) [pdf](04-estimation/stat340_04_estimation.pdf)
+## Topic 4: Estimation: &nbsp; [html](04-estimation/04-estimation.html), [vert](04-estimation/04-estimation.html?view=print), [pdf](04-estimation/stat340_04_estimation.pdf)
 
-## Topic 5: Prediction with Linear Regression: [html](05-prediction/05-prediction.html) [pdf](05-prediction/stat340_05_prediction.pdf)
+## Topic 5: Prediction with Linear Regression: &nbsp; [html](05-prediction/05-prediction.html), [vert](05-prediction/05-prediction.html?view=print), [pdf](05-prediction/stat340_05_prediction.pdf)
 
-## Topic 6: Logistic regression: [html](06-logistic/06-logistic.html) [pdf](06-logistic/stat340_06_logistic.pdf)
+## Topic 6: Logistic regression: &nbsp; [html](06-logistic/06-logistic.html), [vert](06-logistic/06-logistic.html?view=print), [pdf](06-logistic/stat340_06_logistic.pdf)
 
-## Topic 7: Model evaluation: [html](07-models/07-models.html) [pdf](07-models/stat340_07_models.pdf)
+## Topic 7: Model evaluation: &nbsp; [html](07-models/07-models.html), [vert](07-models/07-models.html?view=print), [pdf](07-models/stat340_07_models.pdf)

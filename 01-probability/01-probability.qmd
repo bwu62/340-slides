@@ -4,6 +4,7 @@ title: |
   | Probability
 format:
   revealjs:
+    # touch: false
     title: "STAT340 - Topic 1: Probability"
     theme: simple
     smaller: true
@@ -16,7 +17,6 @@ format:
     maxScale: 1.2
     pdfSeparateFragments: true
     menu: false
-    touch: false
     html-math-method: # improves pdf export + makes additional packages work (e.g. cancel)
       method: mathjax
       url: https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-chtml.js

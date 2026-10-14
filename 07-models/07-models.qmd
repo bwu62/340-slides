@@ -4,6 +4,7 @@ title: |
   | Model Evaluation
 format:
   revealjs:
+    # touch: false
     title: "STAT340 - Topic 7: Model Evaluation"
     theme: simple
     smaller: true

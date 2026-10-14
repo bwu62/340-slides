@@ -4,6 +4,7 @@ title: |
   | Logistic Regression
 format:
   revealjs:
+    # touch: false
     title: "STAT340 - Topic 6: Logistic Regression"
     theme: simple
     smaller: true
