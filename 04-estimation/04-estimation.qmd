@@ -4,7 +4,7 @@ title: |
   | Estimation
 format:
   revealjs:
-    # touch: false
+    touch: false
     title: "STAT340 - Topic 4: Estimation"
     theme: simple
     smaller: true

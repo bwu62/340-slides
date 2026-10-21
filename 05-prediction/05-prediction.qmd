@@ -4,7 +4,7 @@ title: |
   | Prediction
 format:
   revealjs:
-    # touch: false
+    touch: false
     title: "STAT340 - Topic 5: Prediction"
     theme: simple
     smaller: true
@@ -360,6 +360,13 @@ $$\se(y_\new)\!=\!\sqrt{\hat\sigma^2\!\left[1\!+\!\frac1n\!+\!\frac{(x_\new\!-\!
 - Can also use &nbsp; `predict(lm.object, interval="confidence")` &nbsp; or &nbsp; `"prediction"`
 
 
+## Extrapolating
+
+<center>![](extrapolating.png){height="442px"}</center>
+
+<small>source: <https://xkcd.com/605/></small>
+
+
 ## Cumulative SLR exercise!
 
 ```{r,echo=F}
@@ -536,7 +543,7 @@ $$
 
 :::{.column width="70%"}
 
-![](tss.png){.absolute style="z-index:-1;" right=-10 bottom=0 height="240"}
+![](tss.png){style="float:right;z-index:-1" height="240"}
 
 :::
 
