@@ -5,6 +5,8 @@ output: html_document
 
 [(source)](https://github.com/bwu62/340-slides)
 
+[(revealjs guide)]
+
 ## Topic 1: Probability & Random Variables: &nbsp; [html](01-probability/01-probability.html), [pdf](01-probability/stat340_01_probability.pdf)
 
 ## Topic 2: Monte Carlo methods: &nbsp; [html](02-mc/02-mc.html), [pdf](02-mc/stat340_02_mc.pdf)

@@ -509,6 +509,29 @@ sigma * sqrt(1/(sx^2*(n-1)))
 ```
 
 
+## Bootstrap case-resampling for SLR
+
+What if we have just one real dataset, can we still find SEs with MC? Yes! We can **resample $n$ points** from our sample **with replacement**, called case-based **bootstrap**
+
+```{r}
+x  # reusing same x, y from earlier
+y
+```
+
+```{r}
+n = length(x)                        # sample size
+betas = replicate(1e4, {             # setup bootstrap replicate loop
+  indices = sample(n,replace=T)      # resample n indices with replacement
+  coef(lm(y[indices] ~ x[indices]))  # get points, lm, get coefs
+})                                   # coefs collected by replicate into wide matrix
+b1s = betas[2,]  ;  b0s = betas[1,]  # extract coefs from rows of matrix for ease
+sd(b1s)                              # SE of best fit slopes
+quantile(b1s,c(.025,.975))           # 95% confidence interval for true slope
+```
+
+Case-resample bootstrap is a powerful & versatile tool in nonparametric statistics
+
+
 ## How "good" is fit?
 
 :::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
