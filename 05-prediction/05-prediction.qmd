@@ -281,6 +281,29 @@ Remember to check if $\hat\ep_i\sim\norm{0,\sigma^2}$ with residual plots!
 :::
 
 
+## Checking residuals
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+Recall $\ep_i\iid\norm{0,\sigma^2}$. The main assumptions we need to check with residuals are:
+
+1. Residuals $\hat\ep_i$ all centered around 0 across dataset (unbiased)
+2. Residuals $\hat\ep_i$ have constant variance across dataset (homoscedasticity)
+3. Residuals $\hat\ep_i$ collectively roughly normal
+:::
+
+:::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:-.5em"}
+For 1-2, plot $\hat\ep_i$ vs $\hat y_i$ and check if points form flat band about y=0 horizontal line:
+
+<center>![](resid-fitted.png){height="165"}</center>
+:::
+
+:::{.fragment}
+For 3, qq-plot the residuals (i.e. sample vs theoretical quantiles) and check for straight line:
+
+<center>![](resid-qq.png){height="140"}</center>
+:::
+
+
 ## SE of coefficients
 
 :::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
@@ -420,16 +443,18 @@ summary(model)
 ## Exercise answers using R functions (cont.)
 
 ```{r,include=F}
-par(mar=c(3,3,3,2),mgp=c(2,.6,0))
+par(mar=c(3.5,3,2.5,2),mgp=c(2,.6,0))
 ```
 
 ```{r}
-# fitted values
-fitted(model) %>% unname %>% round(2)
-# residuals
-resid(model) %>% unname %>% round(2)
-# check model
-par(mfrow=c(1,2))  ;  plot(model,which=1:2)
+fitted(model) %>% unname %>% round(2)      # fitted values
+resid(model) %>% unname %>% round(2)       # residuals
+par(mfrow=c(1,2)) ; plot(model,which=1:2)  # make side-by-side residual plots
+```
+
+```{r}
+# alternative manual way: plot(fitted(model),resid(model))
+#                         plot(qnorm(ppoints(n)),sort(resid(model)))
 ```
 
 
@@ -620,6 +645,16 @@ Only some key differences in MLR:
   
   - Downside: predictors should not be strongly correlated, i.e. **multicollinearity** (can use statistics like [VIF](https://www.sthda.com/english/articles/39-regression-model-diagnostics/160-multicollinearity-essentials-and-vif-in-r) to detect)
 :::
+
+
+## Multicollinearity
+
+To be clear, we want $Y$ to be correlated with predictors, but we don't want predictors to be strongly correlated with each other, e.g:
+
+<center>![](multicollinearity.png){height="350"}</center>
+
+This makes it harder to separate predictor effects and weakens MLR inference results. Can be resolved with variable selection (discussed later), special transformations, etc.
+
 
 
 ## MLR exercise
