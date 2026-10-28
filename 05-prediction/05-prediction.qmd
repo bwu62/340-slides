@@ -815,7 +815,7 @@ Sometimes, categorical variables may already be coded as 1/0 indicator variables
 # update previous mtcars model by adding am, vs categorical variables
 # alternative: model.mtcars2 = update(model.mtcars, . ~ . + am + vs)
 model.mtcars2 = lm(qsec ~ disp + hp + wt + am + vs, data = mtcars)
-summary(model.mtcars2)  %>% capture.output %>% tail(-8) %>% cat(sep="\n")
+summary(model.mtcars2)                                                                                %>% capture.output %>% tail(-8) %>% cat(sep="\n")
 ```
 
 I.e. **all else equal**, manual transmission faster vs automatic in qsec time by 0.8s **on average**, but this observed difference is only **weakly significant** ($p\approx0.09$).
@@ -849,7 +849,7 @@ With the build-in `penguins` dataset (shown above), do the following:
 
 ```{r}
 model.penguins = lm(flipper_len ~ species + bill_len + bill_dep, data=penguins)
-summary(model.penguins)  %>% capture.output %>% tail(-8) %>% cat(sep="\n")
+summary(model.penguins)                                                                               %>% capture.output %>% tail(-8) %>% cat(sep="\n")
 ```
 
 - Bill length found to be **highly significant** ($p\approx10^{-8}$). **All else equal**, each 1mm increase in bill length associated with 0.70mm increase in flipper length **on average**.
@@ -911,7 +911,7 @@ Examples of synergy effects:
 
 How to detect if interaction exists? Make [**interaction plot**](https://interactions.jacob-long.com/articles/interactions) where $Y$ is plotted against both $X_i$ and $X_j$ and look for **changing slope** of $X_i$ as $X_j$ changes. Example with iris:
 
-```{r,fig.width=12}
+```{r,fig.width=12,fig.height=4}
 # can use any method e.g. base R or ggplot, but easiest way is with interactions package
 library(interactions)   ;   library(patchwork) # use patchwork to arrange plots
 lm(Petal.Length ~ Petal.Width * Species, iris) %>% interact_plot(Petal.Width, Species)  +
@@ -951,9 +951,9 @@ Using `mtcars` again, this time fit a model predicting `mpg` using `hp`, `wt`, `
 :::{.fragment}
 ```{r,fig.width=11,fig.height=4}
 # add all 2-way interactions and check plots
-lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, hp) +                                       theme(legend.position = "inside",legend.position.inside = c(.8,.9)) + 
-lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, cyl) +                                      theme(legend.position = "inside",legend.position.inside = c(.8,.9)) + 
-lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(hp, cyl)                                        + theme(legend.position = "inside",legend.position.inside = c(.8,.9))
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, hp)  +                                      theme(legend.position = "inside",legend.position.inside = c(.8,.8)) + 
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, cyl) +                                      theme(legend.position = "inside",legend.position.inside = c(.8,.8)) + 
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(hp, cyl)                                        + theme(legend.position = "inside",legend.position.inside = c(.8,.8))
 ```
 
 Seems `cyl` may interact with both `hp` and `wt`, so try adding in those
