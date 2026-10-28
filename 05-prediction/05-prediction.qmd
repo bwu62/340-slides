@@ -294,7 +294,7 @@ Recall $\ep_i\iid\norm{0,\sigma^2}$. The main assumptions we need to check with 
 :::{.fragment .fade-in-then-semi-out data-fragment-index=1 style="margin-top:-.5em"}
 For 1-2, plot $\hat\ep_i$ vs $\hat y_i$ and check if points form flat band about y=0 horizontal line:
 
-<center>![](resid-fitted.png){height="165"}</center>
+<center>![](resid-fitted2.png){height="165"}</center>
 :::
 
 :::{.fragment}
@@ -748,7 +748,7 @@ In MLR, there are often many other types of predictors we can consider adding to
 
  - Interactions
  
-   - When two variables (numeric or categorical) have additional combined effects, i.e. "synergy"
+   - When 2 variables (numeric or categorical) have combined effects, i.e. "synergy"
 
  - Non-linear terms
  
@@ -773,9 +773,9 @@ For categorical predictors with 2 or more **levels** (or categories), the follow
 Example: for `iris` dataset below, `Species` is categorical with 3 levels:
 ```{r}
 str(iris)
-# model predicting Sepal.Length from all other variables:
-# alternative: lm(Sepal.Length ~ . , data=iris) where . means all other columns
-model.iris = lm(Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width + Species, data=iris)
+# model predicting Petal.Length from all other variables:
+# alternative: lm(Petal.Length ~ . , data=iris) where . means all other columns
+model.iris = lm(Petal.Length ~ Sepal.Length + Sepal.Width + Petal.Width + Species, data=iris)
 ```
 :::
 
@@ -794,7 +794,7 @@ summary(model.iris)
 
 - Note: setosa used as reference (not shown), other species vs setosa fitted as coefficients
 
-- I.e. **all else equal**, versicolor sepal length lower vs setosa by 0.72cm **on average**
+- E.g. **all else equal**, versicolor petal length higher vs setosa by 1.5cm **on average**
 
 - Both species **significantly different** vs setosa (note: versicolor vs virginica difference NOT modeled & may not be significant)
 
@@ -861,7 +861,7 @@ summary(model.penguins)  %>% capture.output %>% tail(-8) %>% cat(sep="\n")
 
 ```{r}
 model.penguins = lm(flipper_len ~ species + bill_len + bill_dep, data=penguins)
-summary(model.penguins)  %>% capture.output %>% tail(-8) %>% cat(sep="\n")
+summary(model.penguins)                                                                               %>% capture.output %>% tail(-8) %>% cat(sep="\n")
 ```
 
 - Overall model highly significant vs null ($F\!=\!464.7$ on 4, 337 DFs, $~p\!<\!10^{-15}$).
@@ -884,21 +884,97 @@ plot(model.penguins, which=1:2)
 ## Interactions
 
 :::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
-Interaction effects are when **two (or more) predictor variables** have a combined **synergistic effect**, i.e. there's a "pairing" effect, or alternatively "the whole is greater or less than the sum of the parts"
+Interaction effects are when **two (or more) predictors** have combined **synergistic effect**, i.e. there's a "pairing" effect where "the whole is more (or less) than the sum of the parts"
 
-Mathematically, it's equivalent to fitting a **slope for the product** of the variables.
+Mathematically, it's equivalent to adding a **slope for the _product_** of the variables.
 
 Note: if a categorical variable is used in the interaction term, **each non-reference level** is **considered separately** in the product
 :::
 
-:::{.fragment data-fragment-index=1}
-Example: consider the `iris` dataset again, suppose we wish to see if it's worth adding an interaction effect. We can make an **interaction plot** where the response is simultaneously plotted against BOTH predictors in question.
+:::{.fragment data-fragment-index=1 style="margin-top:1.5em"}
+<center>![](interaction.png){width="40%" style="float:right;margin-top:-50px"}</center>
 
-```{r}
+Visually, it looks like a "twisting" of the regression plane, where the slope of $X_i$ changes at a constant rate as $X_j$ changes
 
+Examples of synergy effects:
+
+ - Pairing hot dogs with mustard, and ice cream with sprinkles
+
+ - Pairing alcohol with some drugs makes them more hazardous
+ 
+ - Combining different advertising mediums (e.g. TV / radio / social media) may significantly increase effectiveness of a marketing campaign
+:::
+
+
+
+## Interaction plot
+
+How to detect if interaction exists? Make [**interaction plot**](https://interactions.jacob-long.com/articles/interactions) where $Y$ is plotted against both $X_i$ and $X_j$ and look for **changing slope** of $X_i$ as $X_j$ changes. Example with iris:
+
+```{r,fig.width=12}
+# can use any method e.g. base R or ggplot, but easiest way is with interactions package
+library(interactions)   ;   library(patchwork) # use patchwork to arrange plots
+lm(Petal.Length ~ Petal.Width * Species, iris) %>% interact_plot(Petal.Width, Species)  +
+lm(Petal.Length ~ Petal.Width * Sepal.Width, iris) %>% interact_plot(Petal.Width, Sepal.Width)
 ```
 
+Thus `Petal.Width` interacts w/ `Species` but not `Sepal.Width` if predicting `Petal.Length`
+
+
+## Interaction summary
+
+Summary for previous `Petal.Length ~ Petal.Width * Species` + other `Sepal` columns:
+
+```{r}
+model.iris2 = lm(Petal.Length ~ . + Petal.Width * Species, iris)
+summary(model.iris2)                                                                                  %>% capture.output %>% tail(-9) %>% cat(sep="\n")
+```
+
+:::{.fragment}
+Interpretation: `Species` significantly interacts with `Petal.Width`, specifically versicolor irises have higher `Petal.Width` slope by 1.07 vs setosa ($p=0.006$).
+
+**Note:** `Petal.Width` not significant by itself, but it should **not be removed** if its interaction is present, this is called **hierarchical principle** or [principle of marginality](https://en.wikipedia.org/wiki/Principle_of_marginality).
 :::
+
+
+## Quick residual check
+
+```{r}
+plot(model.iris2, which=1:2)
+```
+
+
+## Interaction exercise
+
+Using `mtcars` again, this time fit a model predicting `mpg` using `hp`, `wt`, `cyl`. Check for any significant interactions, fit and interpret them, then check residuals.
+
+:::{.fragment}
+```{r,fig.width=11,fig.height=4}
+# add all 2-way interactions and check plots
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, hp) +                                       theme(legend.position = "inside",legend.position.inside = c(.8,.9)) + 
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(wt, cyl) +                                      theme(legend.position = "inside",legend.position.inside = c(.8,.9)) + 
+lm(mpg ~ (hp + wt + cyl)^2, mtcars) %>% interact_plot(hp, cyl)                                        + theme(legend.position = "inside",legend.position.inside = c(.8,.9))
+```
+
+Seems `cyl` may interact with both `hp` and `wt`, so try adding in those
+:::
+
+
+## Interaction exercise (cont.)
+
+```{r}
+model.mpg = lm(mpg ~ cyl * (hp + wt), mtcars)
+summary(model.mpg)                                                                                    %>% capture.output %>% tail(-8) %>% cat(sep="\n")
+```
+
+Cylinder seems to weakly interact with horsepower and weight ($p\approx0.06$ for both), each additional cylinder increases effect on mpg from horsepower by 0.014 and wt by 0.63 on average, holding other vars constant.
+
+
+## Interaction exercise (cont.)
+
+```{r}
+plot(model.mpg, which=1:2)
+```
 
 
 
