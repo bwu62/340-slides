@@ -1150,6 +1150,18 @@ F-statistic: 464.7 on 4 and 337 DF,  p-value: &lt; 2.2e-16</code></pre>
 
 </div>
 <img data-src="05-prediction_files/figure-revealjs/unnamed-chunk-27-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="categoricals-in-model-equation" class="slide level2">
+<h2>Categoricals in model equation</h2>
+<p>Mathematically, categorical variables add <strong>indicator variable(s)</strong> for each non-reference level. Suppose we predict <span class="math inline">\(Y\)</span> with numeric <span class="math inline">\(X_1\)</span> and 3-level categorical <span class="math inline">\(X_2\)</span>. Model equation:</p>
+<p><span class="math display">\[
+y_i = \beta_0 + \beta_1x_{i,1} + \big(\beta_{2}x_{i,2} + \beta_{3}x_{i,3}\big) + \ep_i
+\]</span></p>
+<p>Where <span class="math inline">\(\beta_{2}\)</span> is the “slope” for the 2nd level (vs 1st level as reference) and <span class="math inline">\(x_{i,2}\)</span> is the indicator variable which <span class="math inline">\(=\!1\)</span> if a subject is in that group and <span class="math inline">\(=\!0\)</span> otherwise.</p>
+<p>Same thing applies for <span class="math inline">\(\beta_{3}\)</span> and <span class="math inline">\(x_{i,3}\)</span>. If there are more levels, repeat for each.</p>
+<ul>
+<li>Note: each categorical predictor contributes <span class="math inline">\(n-1\)</span> coefficients where <span class="math inline">\(n\)</span> is # of levels</li>
+</ul>
+</section>
 <section id="interactions" class="slide level2">
 <h2>Interactions</h2>
 <div class="fragment no-fade-in semi-fade-out" data-fragment-index="1">
@@ -1175,12 +1187,12 @@ F-statistic: 464.7 on 4 and 337 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>How to detect if interaction exists? Make <a href="https://interactions.jacob-long.com/articles/interactions"><strong>interaction plot</strong></a> where <span class="math inline">\(Y\)</span> is plotted against both <span class="math inline">\(X_i\)</span> and <span class="math inline">\(X_j\)</span> and look for <strong>changing slope</strong> of <span class="math inline">\(X_i\)</span> as <span class="math inline">\(X_j\)</span> changes. Example with iris:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># can use any method e.g. base R or ggplot, but easiest way is with interactions package</span></span>
-<span id="cb100-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(interactions)   ;   <span class="fu">library</span>(patchwork) <span class="co"># use patchwork to arrange plots</span></span>
-<span id="cb100-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Petal.Length <span class="sc">~</span> Petal.Width <span class="sc">*</span> Species, iris) <span class="sc">%&gt;%</span> <span class="fu">interact_plot</span>(Petal.Width, Species)  <span class="sc">+</span></span>
-<span id="cb100-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Petal.Length <span class="sc">~</span> Petal.Width <span class="sc">*</span> Sepal.Width, iris) <span class="sc">%&gt;%</span> <span class="fu">interact_plot</span>(Petal.Width, Sepal.Width)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb100-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(interactions) ; <span class="fu">library</span>(patchwork) <span class="co"># use patchwork to arrange plots</span></span>
+<span id="cb100-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Petal.Length <span class="sc">~</span> Petal.Width <span class="sc">*</span> Species, iris)      <span class="sc">%&gt;%</span>  <span class="fu">interact_plot</span>(Petal.Width, Species)  <span class="sc">+</span></span>
+<span id="cb100-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Petal.Length <span class="sc">~</span> Petal.Width <span class="sc">*</span> Sepal.Width, iris)  <span class="sc">%&gt;%</span>  <span class="fu">interact_plot</span>(Petal.Width, Sepal.Width)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="05-prediction_files/figure-revealjs/unnamed-chunk-28-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="1152"><p>Thus <code>Petal.Width</code> interacts w/ <code>Species</code> but not <code>Sepal.Width</code> if predicting <code>Petal.Length</code></p>
+<img data-src="05-prediction_files/figure-revealjs/unnamed-chunk-28-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="1152"><p><code>Petal.Width</code> interacts with <code>Species</code> but not <code>Sepal.Width</code> for predicting <code>Petal.Length</code></p>
 </section>
 <section id="interaction-summary" class="slide level2">
 <h2>Interaction summary</h2>
@@ -1206,10 +1218,8 @@ Multiple R-squared:  0.9808,    Adjusted R-squared:  0.9798
 F-statistic:  1036 on 7 and 142 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
-<div class="fragment">
 <p>Interpretation: <code>Species</code> significantly interacts with <code>Petal.Width</code>, specifically versicolor irises have higher <code>Petal.Width</code> slope by 1.07 vs setosa (<span class="math inline">\(p=0.006\)</span>).</p>
 <p><strong>Note:</strong> <code>Petal.Width</code> not significant by itself, but it should <strong>not be removed</strong> if its interaction is present, this is called <strong>hierarchical principle</strong> or <a href="https://en.wikipedia.org/wiki/Principle_of_marginality">principle of marginality</a>.</p>
-</div>
 </section>
 <section id="quick-residual-check" class="slide level2">
 <h2>Quick residual check</h2>
@@ -1269,6 +1279,133 @@ F-statistic: 44.16 on 5 and 26 DF,  p-value: 6.826e-12</code></pre>
 
 </div>
 <img data-src="05-prediction_files/figure-revealjs/unnamed-chunk-33-1.svg" class="quarto-figure quarto-figure-center r-stretch" width="960"></section>
+<section id="interaction-cont." class="slide level2">
+<h2>Interaction (cont.)</h2>
+<div class="fragment no-fade-in semi-fade-out" data-fragment-index="1">
+<p>A few additional points about interactions:</p>
+<ul>
+<li><p>2-way is most common, but can have 3-way, 4-way, etc… no limit, but the higher the interaction order the weaker/harder-to-fit the effect tends to be</p></li>
+<li><p>Hierarchical principle applies to any-way, if you include an n-way effect, all lower order effects for those variables should be in model</p></li>
+<li><p>In <code>R</code>, different ways to add interactions:</p>
+<ul>
+<li><code>x1:x2</code> adds only the specific interaction</li>
+<li><code>x1*x2</code> adds interaction plus all lower-order effects</li>
+<li><code>( )^2</code> shortcut for adding 2-way interactions between several variables</li>
+</ul></li>
+</ul>
+</div>
+<div class="fragment" data-fragment-index="1" style="">
+<ul>
+<li><p>Equivalent to adding <strong>the product of each predictor’s coefficient(s)</strong> to model,<br>
+e.g.&nbsp;suppose we have <code>y ~ (x1) * (x2)</code></p>
+<ul>
+<li>If <code>x1</code> is numeric, it contributes a single coefficient <span class="math inline">\(\beta_1\)</span> to the product with <code>x2</code></li>
+<li>If <code>x1</code> is categorical with <span class="math inline">\(n\)</span> levels, it contributes <span class="math inline">\(n\!-\!1\)</span> coefficients <span class="math inline">\(\beta_1,...,\beta_{n-1}\)</span> to the product with <code>x2</code>, and <strong>each combination of <code>x1</code>’s and <code>x2</code>’s coefficients appears</strong>!</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="interaction-advanced-example" class="slide level2" data-transition="slide-in fade-out">
+<h2>Interaction advanced example</h2>
+<p>Suppose we are predicting flipper length again for penguins with the following lm model.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="" aria-hidden="true" tabindex="-1"></a>model.penguins2 <span class="ot">=</span> <span class="fu">lm</span>(flipper_len <span class="sc">~</span> (body_mass <span class="sc">+</span> species) <span class="sc">*</span> (bill_len <span class="sc">+</span> sex), <span class="fu">drop_na</span>(penguins))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Body mass, bill length are numeric. Species is 3-level categorical, and sex is 2-level. Each variable “multiplied” in the <code>lm</code> formula adds the interaction.</p>
+<p>Questions:</p>
+<ul>
+<li><p>How many variables are interacted, and what order of interactions are these?</p></li>
+<li><p>How many coefficients will appear in the summary output?</p></li>
+<li><p>The data frame has 333 complete rows. How many residual degrees of freedom are there?</p></li>
+</ul>
+</section>
+<section id="interaction-advanced-example-answers" class="slide level2" data-transition="fade-in slide-out">
+<h2>Interaction advanced example answers</h2>
+<p>Suppose we are predicting flipper length again for penguins with the following lm model.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="" aria-hidden="true" tabindex="-1"></a>model.penguins2 <span class="ot">=</span> <span class="fu">lm</span>(flipper_len <span class="sc">~</span> (body_mass <span class="sc">+</span> species) <span class="sc">*</span> (bill_len <span class="sc">+</span> sex), <span class="fu">drop_na</span>(penguins))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Body mass, bill length are numeric. Species is 3-level categorical, and sex is 2-level. Each variable “multiplied” in the <code>lm</code> formula adds the interaction.</p>
+<ul>
+<li><p>There are 4 different 2-way interactions added: <code>body_mass:bill_len</code> , <code>body_mass:sex</code> , <code>species:bill_len</code> , <code>species:sex</code></p></li>
+<li><p>12 total coefficients: 1 intercept <span class="math inline">\(+\)</span></p>
+<ul>
+<li><code>body_mass</code> and <code>bill_len</code> each adds <span class="math inline">\(1+1=2\)</span> coefficients</li>
+<li><code>sex</code> adds <span class="math inline">\(2-1=1\)</span> coefficient, and <code>species</code> adds <span class="math inline">\(3-1=2\)</span> coefficients</li>
+<li><code>body_mass:bill_len</code> adds <span class="math inline">\(1\times1=1\)</span> coefficient</li>
+<li><code>body_mass:sex</code> also adds <span class="math inline">\(1\times1=1\)</span> coefficient</li>
+<li><code>species:bill_len</code> adds <span class="math inline">\(2\times1=2\)</span> coefficients</li>
+<li><code>species:sex</code> also adds <span class="math inline">\(2\times1=2\)</span> coefficients</li>
+</ul></li>
+<li><p>There will be <span class="math inline">\(333-12=321\)</span> residual degrees of freedom</p></li>
+</ul>
+</section>
+<section id="lm-summary" class="slide level2" data-transition="slide-in fade-out">
+<h2><code>lm</code> summary</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.penguins2)  <span class="co"># lm summary of previous model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>                            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                1.861e+02  2.623e+01   7.095 8.31e-12 ***
+body_mass                 -2.107e-03  6.997e-03  -0.301   0.7635    
+speciesChinstrap           9.166e+00  1.436e+01   0.638   0.5238    
+speciesGentoo              1.602e+01  1.754e+01   0.913   0.3617    
+bill_len                  -3.598e-01  6.397e-01  -0.562   0.5742    
+sexmale                   -2.144e+00  7.901e+00  -0.271   0.7862    
+body_mass:bill_len         1.767e-04  1.665e-04   1.062   0.2892    
+body_mass:sexmale          6.466e-04  2.083e-03   0.310   0.7564    
+speciesChinstrap:bill_len -1.807e-01  3.300e-01  -0.548   0.5844    
+speciesGentoo:bill_len    -1.904e-02  4.093e-01  -0.047   0.9629    
+speciesChinstrap:sexmale   4.568e+00  2.190e+00   2.086   0.0378 *  
+speciesGentoo:sexmale      3.061e-01  3.064e+00   0.100   0.9205    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.196 on 321 degrees of freedom
+Multiple R-squared:  0.8671,    Adjusted R-squared:  0.8626 
+F-statistic: 190.4 on 11 and 321 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Question: suppose we sample a new female Gentoo penguin with bodymass 5000g and bill length 40mm. What would this model predict for the flipper length in mm?</p>
+</section>
+<section id="lm-summary-1" class="slide level2" data-transition="fade-in slide-out">
+<h2><code>lm</code> summary</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model.penguins2)  <span class="co"># lm summary of previous model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>                            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                1.861e+02  2.623e+01   7.095 8.31e-12 ***
+body_mass                 -2.107e-03  6.997e-03  -0.301   0.7635    
+speciesChinstrap           9.166e+00  1.436e+01   0.638   0.5238    
+speciesGentoo              1.602e+01  1.754e+01   0.913   0.3617    
+bill_len                  -3.598e-01  6.397e-01  -0.562   0.5742    
+sexmale                   -2.144e+00  7.901e+00  -0.271   0.7862    
+body_mass:bill_len         1.767e-04  1.665e-04   1.062   0.2892    
+body_mass:sexmale          6.466e-04  2.083e-03   0.310   0.7564    
+speciesChinstrap:bill_len -1.807e-01  3.300e-01  -0.548   0.5844    
+speciesGentoo:bill_len    -1.904e-02  4.093e-01  -0.047   0.9629    
+speciesChinstrap:sexmale   4.568e+00  2.190e+00   2.086   0.0378 *  
+speciesGentoo:sexmale      3.061e-01  3.064e+00   0.100   0.9205    </code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># manually, note any "sexmale" columns do NOT apply</span></span>
+<span id="cb114-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fl">186.1</span> <span class="sc">+</span> <span class="sc">-</span><span class="fl">0.002107</span><span class="sc">*</span><span class="dv">5000</span> <span class="sc">+</span> <span class="dv">16</span> <span class="sc">+</span> <span class="sc">-</span><span class="fl">0.3598</span><span class="sc">*</span><span class="dv">40</span> <span class="sc">+</span> <span class="fl">0.0001767</span><span class="sc">*</span><span class="dv">5000</span><span class="sc">*</span><span class="dv">40</span> <span class="sc">+</span> <span class="sc">-</span><span class="fl">0.01904</span><span class="sc">*</span><span class="dv">1</span><span class="sc">*</span><span class="dv">40</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 211.7514</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># with predict() function</span></span>
+<span id="cb116-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model.penguins2, <span class="fu">tibble</span>(<span class="at">body_mass=</span><span class="dv">5000</span>, <span class="at">bill_len=</span><span class="dv">40</span>, <span class="at">sex=</span><span class="st">"female"</span>, <span class="at">species=</span><span class="st">"Gentoo"</span>))         <span class="sc">%&gt;%</span> unname</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 211.775</code></pre>
+</div>
+</div>
+<p>Female Gentoo penguins with bodymass of 5000g and bill length of 40mm predicted to have 212mm flipper length on average.</p>
+</section>
 <section id="section" class="slide level2">
 <h2></h2>
 <p><em>(more notes added soon)</em></p>

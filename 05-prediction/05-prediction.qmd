@@ -881,6 +881,21 @@ plot(model.penguins, which=1:2)
 ```
 
 
+## Categoricals in model equation
+
+Mathematically, categorical variables add **indicator variable(s)** for each non-reference level. Suppose we predict $Y$ with numeric $X_1$ and 3-level categorical $X_2$. Model equation:
+
+$$
+y_i = \beta_0 + \beta_1x_{i,1} + \big(\beta_{2}x_{i,2} + \beta_{3}x_{i,3}\big) + \ep_i
+$$
+
+Where $\beta_{2}$ is the "slope" for the 2nd level (vs 1st level as reference) and $x_{i,2}$ is the indicator variable which $=\!1$ if a subject is in that group and $=\!0$ otherwise.
+
+Same thing applies for $\beta_{3}$ and $x_{i,3}$. If there are more levels, repeat for each.
+
+- Note: each categorical predictor contributes $n-1$ coefficients where $n$ is \# of levels
+
+
 ## Interactions
 
 :::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
@@ -906,19 +921,18 @@ Examples of synergy effects:
 :::
 
 
-
 ## Interaction plot
 
 How to detect if interaction exists? Make [**interaction plot**](https://interactions.jacob-long.com/articles/interactions) where $Y$ is plotted against both $X_i$ and $X_j$ and look for **changing slope** of $X_i$ as $X_j$ changes. Example with iris:
 
 ```{r,fig.width=12,fig.height=4}
 # can use any method e.g. base R or ggplot, but easiest way is with interactions package
-library(interactions)   ;   library(patchwork) # use patchwork to arrange plots
-lm(Petal.Length ~ Petal.Width * Species, iris) %>% interact_plot(Petal.Width, Species)  +
-lm(Petal.Length ~ Petal.Width * Sepal.Width, iris) %>% interact_plot(Petal.Width, Sepal.Width)
+library(interactions) ; library(patchwork) # use patchwork to arrange plots
+lm(Petal.Length ~ Petal.Width * Species, iris)      %>%  interact_plot(Petal.Width, Species)  +
+lm(Petal.Length ~ Petal.Width * Sepal.Width, iris)  %>%  interact_plot(Petal.Width, Sepal.Width)
 ```
 
-Thus `Petal.Width` interacts w/ `Species` but not `Sepal.Width` if predicting `Petal.Length`
+`Petal.Width` interacts with `Species` but not `Sepal.Width` for predicting `Petal.Length`
 
 
 ## Interaction summary
@@ -930,11 +944,9 @@ model.iris2 = lm(Petal.Length ~ . + Petal.Width * Species, iris)
 summary(model.iris2)                                                                                  %>% capture.output %>% tail(-9) %>% cat(sep="\n")
 ```
 
-:::{.fragment}
 Interpretation: `Species` significantly interacts with `Petal.Width`, specifically versicolor irises have higher `Petal.Width` slope by 1.07 vs setosa ($p=0.006$).
 
 **Note:** `Petal.Width` not significant by itself, but it should **not be removed** if its interaction is present, this is called **hierarchical principle** or [principle of marginality](https://en.wikipedia.org/wiki/Principle_of_marginality).
-:::
 
 
 ## Quick residual check
@@ -977,6 +989,102 @@ plot(model.mpg, which=1:2)
 ```
 
 
+## Interaction (cont.)
+
+:::{.fragment .no-fade-in .semi-fade-out data-fragment-index=1}
+A few additional points about interactions:
+
+- 2-way is most common, but can have 3-way, 4-way, etc... no limit, but the higher the interaction order the weaker/harder-to-fit the effect tends to be
+
+- Hierarchical principle applies to any-way, if you include an n-way effect, all lower order effects for those variables should be in model
+
+- In `R`, different ways to add interactions:
+  - `x1:x2` adds only the specific interaction
+  - `x1*x2` adds interaction plus all lower-order effects
+  - `( )^2` shortcut for adding 2-way interactions between several variables
+:::
+
+
+:::{.fragment data-fragment-index=1 style=""}
+- Equivalent to adding **the product of each predictor's coefficient(s)** to model,  
+  e.g. suppose we have `y ~ (x1) * (x2)`
+  
+  - If `x1` is numeric, it contributes a single coefficient $\beta_1$ to the product with `x2`
+  - If `x1` is categorical with $n$ levels, it contributes $n\!-\!1$ coefficients $\beta_1,...,\beta_{n-1}$ to the product with `x2`, and **each combination of `x1`'s and `x2`'s coefficients appears**!
+:::
+
+
+## Interaction advanced example {transition="slide-in fade-out"}
+
+Suppose we are predicting flipper length again for penguins with the following lm model.
+
+```{r}
+model.penguins2 = lm(flipper_len ~ (body_mass + species) * (bill_len + sex), drop_na(penguins))
+```
+
+Body mass, bill length are numeric. Species is 3-level categorical, and sex is 2-level. Each variable "multiplied" in the `lm` formula adds the interaction.
+
+Questions:
+
+- How many variables are interacted, and what order of interactions are these?
+
+- How many coefficients will appear in the summary output?
+
+- The data frame has 333 complete rows. How many residual degrees of freedom are there?
+
+
+## Interaction advanced example answers  {transition="fade-in slide-out"}
+
+Suppose we are predicting flipper length again for penguins with the following lm model.
+
+```{r}
+model.penguins2 = lm(flipper_len ~ (body_mass + species) * (bill_len + sex), drop_na(penguins))
+```
+
+Body mass, bill length are numeric. Species is 3-level categorical, and sex is 2-level. Each variable "multiplied" in the `lm` formula adds the interaction.
+
+- There are 4 different 2-way interactions added: `body_mass:bill_len` , `body_mass:sex` , `species:bill_len` , `species:sex`
+
+- 12 total coefficients: 1 intercept $+$
+  - `body_mass` and `bill_len` each adds $1+1=2$ coefficients
+  - `sex` adds $2-1=1$ coefficient, and `species` adds $3-1=2$ coefficients
+  - `body_mass:bill_len` adds $1\times1=1$ coefficient
+  - `body_mass:sex` also adds $1\times1=1$ coefficient
+  - `species:bill_len` adds $2\times1=2$ coefficients
+  - `species:sex` also adds $2\times1=2$ coefficients
+
+- There will be $333-12=321$ residual degrees of freedom
+
+
+## `lm` summary  {transition="slide-in fade-out"}
+
+```{r,echo=T,eval=F}
+summary(model.penguins2)  # lm summary of previous model
+```
+```{r,echo=F,eval=T}
+summary(model.penguins2) %>% capture.output %>% tail(-10) %>% cat(sep="\n")
+```
+
+Question: suppose we sample a new female Gentoo penguin with bodymass 5000g and bill length 40mm. What would this model predict for the flipper length in mm?
+
+
+## `lm` summary  {transition="fade-in slide-out"}
+
+```{r,echo=T,eval=F}
+summary(model.penguins2)  # lm summary of previous model
+```
+```{r,echo=F,eval=T}
+summary(model.penguins2) %>% capture.output %>% tail(-10) %>% head(-7) %>% cat(sep="\n")
+```
+
+```{r}
+# manually, note any "sexmale" columns do NOT apply
+186.1 + -0.002107*5000 + 16 + -0.3598*40 + 0.0001767*5000*40 + -0.01904*1*40
+# with predict() function
+predict(model.penguins2, tibble(body_mass=5000, bill_len=40, sex="female", species="Gentoo"))         %>% unname
+```
+
+Female Gentoo penguins with bodymass of 5000g and bill length of 40mm predicted to have 212mm flipper length on average.
 
 ##
 
