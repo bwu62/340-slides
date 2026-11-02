@@ -1078,13 +1078,144 @@ summary(model.penguins2) %>% capture.output %>% tail(-10) %>% head(-7) %>% cat(s
 ```
 
 ```{r}
-# manually, note any "sexmale" columns do NOT apply
+# manually, note any "sexmale" rows do NOT apply
 186.1 + -0.002107*5000 + 16 + -0.3598*40 + 0.0001767*5000*40 + -0.01904*1*40
 # with predict() function
 predict(model.penguins2, tibble(body_mass=5000, bill_len=40, sex="female", species="Gentoo"))         %>% unname
 ```
 
-Female Gentoo penguins with bodymass of 5000g and bill length of 40mm predicted to have 212mm flipper length on average.
+Female Gentoo penguins with bodymass 5000g and bill length 40mm predicted to have 212mm flipper length on average.
+
+
+## Quick residual check
+
+```{r}
+plot(model.penguins2, which=1:2)
+```
+
+
+## Nonlinear terms
+
+Sometimes, higher order effects of a predictor may be needed, these can also be easily added in `R`. Example: using `mtcars` again, suppose we only wish to predict `mpg` with `hp`. Plot:
+
+```{r,include=F}
+par(mar=c(3,3,2,1),mgp=c(1.8,.6,0))
+```
+```{r,fig.width=9,fig.height=4.5}
+lm.hp = lm(mpg ~ hp, mtcars)  ;  coefs = coef(lm.hp)
+with(mtcars, plot(hp, mpg))   ;  abline(coefs[1],coefs[2])  ;  plot(lm.hp,1)
+```
+
+There's clear non-linearity present, so residual mean-0 assumption is violated. This can be fixed in other ways (e.g. adding interactions) but can also try adding a squared `hp` term
+
+
+## Nonlinear terms `hp` example
+
+For squared term, add&nbsp; ` + I(hp^2)` where `I()` is the ["AsIs" function](https://stat.ethz.ch/R-manual/R-devel/library/base/html/AsIs.html) that disables `R`'s [formula](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/formula.html) interpreter and leaves it as-is as a transformation function
+
+```{r}
+lm.hp2 = lm(mpg ~ hp + I(hp^2), mtcars)
+summary(lm.hp2)                                                                                       %>% capture.output %>% tail(-7) %>% cat(sep="\n")
+```
+
+:::{.fragment}
+Squared `hp` term is quite significant here ($p\approx10^{-4}$) and dramatically improves model performance ($R^2$ improved from `r round(summary(lm.hp)$r.squared,3)` to `r round(summary(lm.hp2)$r.squared,3)`)
+
+**Note:** hierarchical principle applies here too, if there's a higher order (e.g. squared) term, should also keep all lower order terms
+:::
+
+
+## Nonlinear terms `hp` example plots
+
+```{r}
+with(mtcars,plot(hp,mpg)) ; plot(\(x)40-.21*x+.00042*x^2,add=T,from=60,to=330) ; plot(lm.hp2,1)
+```
+
+
+## Exercise
+
+Extend the previous example to include a 3rd order `hp` term, feel free to add other predictors as well. Which orders of `hp` are significant for predicting `mpg`?
+
+:::{.fragment}
+```{r}
+# I arbitrarily pick a few other predictors to include
+model.mpg = lm(mpg ~ hp + I(hp^2) + I(hp^3) + wt + cyl, mtcars)  ;  summary(model.mpg)                %>% capture.output %>% tail(-7) %>% cat(sep="\n")
+```
+
+With `wt` and `cyl` included, seems like `hp` significant only up to second order. `wt` continues to be very important predictor.
+:::
+
+
+## Other nonlinear situations
+
+Log transforms also very common in data science and may be applied to predictors and/or response depending on situation. Generally a variable should ONLY be logged if it:
+
+1. Must be positive,
+2. Is right-skewed (or spans many orders of magnitude),
+3. It's connected to some theoretical model equation, e.g.:
+   - If $y=ab^x$ then $\log(y)=\log(a)+\log(b)\cdot x$, called **exponential** relation
+   - If $y=ax^b$ then $\log(y)=\log(a)+b\cdot\log(x)$, called **power law**
+
+If log is necessary but not performed, will often see problems in residual plots.
+
+
+## `trees` exercise
+
+Exercise: `trees` is a default dataset with `Girth` (diameter in inches measured 4.5ft above ground), `Height` (feet), and `Volume` of produced lumber (ft^3^) data for 31 black cherry trees.
+
+```{r}
+glimpse(trees)
+```
+
+1. Plot volume of lumber (Y) vs girth of trees (X)
+2. Since we expect volume to be proportional to some power of girth, fit a power law model and plot the result. Note `log()` can be directly used in `lm` formula expressions.
+3. How predictive is the model?
+4. Give point and interval estimates for $a,b$.
+5. Remember to check the residuals.
+
+
+## `trees` exercise answers
+
+```{r}
+# raw and log-log transformed data, there is some evidence of nonzero-mean in first plot
+ggplot(trees,aes(Girth,Volume)) + geom_point() + geom_smooth(method=lm,se=F) + 
+ggplot(trees,aes(log(Girth),log(Volume))) + geom_point() + geom_smooth(method=lm,se=F)
+```
+
+
+## `trees` exercise answers (cont.)
+
+```{r}
+model.trees = lm(log(Volume) ~ log(Girth), trees)  ;  summary(model.trees)                            %>% capture.output %>% tail(-7) %>% cat(sep="\n")
+confint(model.trees)
+exp(confint(model.trees)[1,])
+```
+
+The model estimates $\hat b=2.2$ and performs very well, explaining 95\% of the variations in volume. 95\% confidence intervals for $a$ and $b$ are $(0.06,0.15)$ and $(2.0,2.4)$.
+
+
+## `trees` exercise answers (cont.)
+
+```{r,fig.width=6}
+# replotting power law with original data, compared with straight line
+ggplot(trees,aes(Girth,Volume)) + geom_point() + geom_smooth(method=lm,se=F) + 
+  geom_function(fun=\(x)0.095*x^2.2, color="red", linewidth=1)
+```
+
+
+## `trees` exercise answers (cont.)
+
+```{r}
+plot(lm(Volume~Girth,trees), which=1:2)  # without power law, visible nonlinearity
+```
+
+
+## `trees` exercise answers (cont.)
+
+```{r}
+plot(model.trees, which=1:2)  # with power law, residuals look much better
+```
+
 
 ##
 
